@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { RecipeService } from './recipe.service';
 
-@Module({})
+@Module({
+  providers: [RecipeService]
+})
 export class RecipeModule {}

@@ -5,19 +5,19 @@ export type UserDocument = User & Document;
 
 @Schema()
 export class User {
-  @Prop({ required: true })
+  @Prop({ required: true, type: 'string' })
   username: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: 'string' })
   password: string;
 
-  @Prop({ default: false })
+  @Prop({ default: false, type: 'boolean' })
   isAdmin: boolean;
 
-  @Prop({ default: '' })
+  @Prop({ default: '', type: 'string' })
   refreshToken: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: 'number' })
   createdAt: number;
 }
 

@@ -5,7 +5,8 @@
     "outDir": "./build",
     "strict": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false
   },
   "exclude": ["src/tests/"]
 }

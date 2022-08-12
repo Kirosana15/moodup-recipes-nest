@@ -17,7 +17,7 @@ export class User {
   @Prop({ default: '', type: 'string' })
   refreshToken: string;
 
-  @Prop({ required: true, type: 'number' })
+  @Prop({ default: Date.now(), type: 'number' })
   createdAt: number;
 }
 

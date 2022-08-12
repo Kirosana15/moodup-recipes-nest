@@ -1,20 +1,14 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { RecipeModule } from './recipe/recipe.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import config from '../config/config';
+import { AppController } from './app.controller';
 
+const DB_URI = process.env.DB_URI || 'mongodb://localhost:27017/dev';
 @Module({
-  imports: [
-    ConfigModule.forRoot({ load: [config], isGlobal: true }),
-    MongooseModule.forRoot(config().database.uri),
-    UserModule,
-    RecipeModule, 
-    AuthModule,
-  ],
-  controllers: [],
+  imports: [MongooseModule.forRoot(DB_URI), UserModule, RecipeModule, AuthModule],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}

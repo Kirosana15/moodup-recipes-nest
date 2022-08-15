@@ -3,7 +3,10 @@ import { generateUser, generateUserFromDb } from '../../../user/test/mock/user.m
 import { User } from '../../../user/user.schema';
 
 export const userServiceMock = {
-  create: (userCredentialsDto: UserCredentialsDto) =>
-    jest.fn().mockResolvedValue(generateUserFromDb(userCredentialsDto))(),
-  getByUsername: jest.fn((username: string): Promise<User> => new Promise(resolve => generateUser({ username }))),
+  create: jest.fn().mockImplementation((userCredentialsDto: UserCredentialsDto) => {
+    return generateUserFromDb(userCredentialsDto);
+  }),
+  getByUsername: jest.fn().mockImplementation((userCredentialsDto: UserCredentialsDto) => {
+    return generateUserFromDb(userCredentialsDto);
+  }),
 };

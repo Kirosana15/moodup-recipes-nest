@@ -4,7 +4,7 @@ import { User } from '../../user.schema';
 import { UserDto } from '../../dto/user.from.db.dto';
 
 export const mockUsername = faker.name.firstName();
-export const mockPassword = faker.internet.password(10, false, undefined, '💩');
+export const mockPassword = faker.internet.password(10, false, undefined, 'aA$1');
 export const mockId = faker.database.mongodbObjectId();
 export const mockCredentials: UserCredentialsDto = { username: mockUsername, password: mockPassword };
 

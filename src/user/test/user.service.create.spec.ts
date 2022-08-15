@@ -4,11 +4,12 @@ import { Model } from 'mongoose';
 import { User, UserDocument, UserSchema } from '../user.schema';
 import { UserService } from '../user.service';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
-import { mockPassword, mockUsername, UserMock } from './mock/user.model.mock';
+import { mockCredentials, mockPassword, mockUsername, UserMock } from './mock/user.model.mock';
 
-describe('UserService', () => {
+describe('UserService.create()', () => {
   let service: UserService;
   let userMock: Model<UserDocument>;
+  let saveSpy: jest.SpyInstance;
   beforeEach(async () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
@@ -18,6 +19,7 @@ describe('UserService', () => {
 
     service = module.get(UserService);
     userMock = module.get(getModelToken(User.name));
+    saveSpy = jest.spyOn(userMock.prototype, 'save');
   });
 
   afterAll(async () => {
@@ -29,10 +31,10 @@ describe('UserService', () => {
   });
 
   it('should return user', async () => {
-    const userCredentials = { username: mockUsername, password: mockPassword };
-    const user = await service.create(userCredentials);
+    const user = await service.create(mockCredentials);
     expect(user.username).toBe(mockUsername);
     const userFromDb = await service.getByUsername(mockUsername);
     expect(userFromDb?._id).toStrictEqual(user._id);
+    expect(saveSpy).toBeCalledTimes(1);
   });
 });

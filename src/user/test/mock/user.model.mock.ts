@@ -1,6 +1,7 @@
 import { UserCredentialsDto } from '../../dto/user.credentials.dto';
 import { faker } from '@faker-js/faker';
 import { User } from '../../user.schema';
+import { UserDto } from '../../dto/user.from.db.dto';
 
 export const mockUsername = faker.name.firstName();
 export const mockPassword = faker.internet.password(10, false, undefined, '💩');
@@ -17,6 +18,15 @@ export const generateUser = (user?: UserPayload): UserPayload => {
     createdAt: user?.createdAt || faker.date.past().getTime(),
   };
 };
+
+export const generateUserFromDb = (user?: Partial<UserDto>): UserDto => ({
+  _id: user?._id || generateMockId(),
+  username: user?.username || faker.internet.userName(),
+  password: user?.password || faker.internet.password(10),
+  isAdmin: user?.isAdmin || false,
+  refreshToken: user?.refreshToken || faker.datatype.string(20),
+  createdAt: user?.createdAt || faker.date.past().getTime(),
+});
 
 export const generateUsers = (count: number): UserPayload[] => {
   return Array.from(Array(count), generateUser);

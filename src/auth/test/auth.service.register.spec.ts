@@ -36,8 +36,10 @@ describe('AuthService.register()', () => {
 
   it('should return new user', async () => {
     const user = await service.register(mockCredentials);
-    expect(user?._id).toBeDefined();
-    expect(user?.password).not.toBe(mockPassword);
+    expect(user).toBeDefined;
+    expect(user!._id).toBeDefined();
+    const createdUser = await userService.getByUsername(user!.username);
+    expect(createdUser?.password).toEqual(mockPassword);
     expect(createSpy).toBeCalledTimes(1);
   });
 

@@ -45,7 +45,7 @@ describe('AuthController', () => {
       expect(registerSpy).toBeCalledTimes(1);
     });
 
-    it(`should return ${HttpStatus.NOT_FOUND} when username is too short`, async () => {
+    it(`should return ${HttpStatus.BAD_REQUEST} when username is too short`, async () => {
       const res = await request(app.getHttpServer())
         .post('/register')
         .send({ username: 'bob', password: mockPassword })
@@ -53,7 +53,7 @@ describe('AuthController', () => {
       expect(res.body.message[0]).toMatch('username must be longer');
     });
 
-    it(`should return ${HttpStatus.NOT_FOUND} when password is too short`, async () => {
+    it(`should return ${HttpStatus.BAD_REQUEST} when password is too short`, async () => {
       const res = await request(app.getHttpServer())
         .post('/register')
         .send({ username: mockUsername, password: 'P4$s' })
@@ -61,7 +61,7 @@ describe('AuthController', () => {
       expect(res.body.message[0]).toMatch('password must be longer');
     });
 
-    it(`should return ${HttpStatus.NOT_FOUND} when username doesn't match regex`, async () => {
+    it(`should return ${HttpStatus.BAD_REQUEST} when username doesn't match regex`, async () => {
       const res = await request(app.getHttpServer())
         .post('/register')
         .send({ username: '$andrzej$', password: mockPassword })
@@ -69,7 +69,7 @@ describe('AuthController', () => {
       expect(res.body.message[0]).toMatch('username can only contain');
     });
 
-    it(`should return ${HttpStatus.NOT_FOUND} when password doesn't match regex`, async () => {
+    it(`should return ${HttpStatus.BAD_REQUEST} when password doesn't match regex`, async () => {
       const res = await request(app.getHttpServer())
         .post('/register')
         .send({ username: mockUsername, password: 'password' })

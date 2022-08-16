@@ -5,17 +5,21 @@ import { JwtService } from '@nestjs/jwt';
 import { UserCredentialsDto } from '../user/dto/user.credentials.dto';
 import { User } from '../user/user.schema';
 import { Error, MongooseError } from 'mongoose';
-import { UserDto } from '../user/dto/user.from.db.dto';
+import { UserSafeDto } from '../user/dto/user.from.db.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private userService: UserService, private jwtService: JwtService) {}
 
-  async register(userCredentialsDto: UserCredentialsDto): Promise<UserDto | undefined> {
+  async register(userCredentialsDto: UserCredentialsDto): Promise<UserSafeDto | undefined> {
     const { username, password } = userCredentialsDto;
     try {
       const hashedPassword = await this.hashPassword(password);
-      const user = await this.userService.create({ username, password: hashedPassword });
+      const {
+        password: _,
+        refreshToken,
+        ...user
+      } = await this.userService.create({ username, password: hashedPassword });
       return user;
     } catch (err: unknown) {
       if ((err as { code: number }).code === 11000) {
@@ -27,6 +31,7 @@ export class AuthService {
   }
 
   private async hashPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 10);
+    const salt = await bcrypt.genSalt();
+    return bcrypt.hash(password, salt);
   }
 }

@@ -36,9 +36,10 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('POST /register', () => {
+  describe('POST auth/register', () => {
+    const PATH = '/auth/register';
     it(`should return ${HttpStatus.CREATED} and newly registered user`, async () => {
-      const res = await request(app.getHttpServer()).post('/register').send(mockCredentials).expect(HttpStatus.CREATED);
+      const res = await request(app.getHttpServer()).post(PATH).send(mockCredentials).expect(HttpStatus.CREATED);
       const user = res.body;
       expect(user._id).toBeDefined();
       expect(user.username).toBe(mockUsername);
@@ -47,7 +48,7 @@ describe('AuthController', () => {
 
     it(`should return ${HttpStatus.BAD_REQUEST} when username is too short`, async () => {
       const res = await request(app.getHttpServer())
-        .post('/register')
+        .post(PATH)
         .send({ username: 'bob', password: mockPassword })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body.message[0]).toMatch('username must be longer');
@@ -55,7 +56,7 @@ describe('AuthController', () => {
 
     it(`should return ${HttpStatus.BAD_REQUEST} when password is too short`, async () => {
       const res = await request(app.getHttpServer())
-        .post('/register')
+        .post(PATH)
         .send({ username: mockUsername, password: 'P4$s' })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body.message[0]).toMatch('password must be longer');
@@ -63,7 +64,7 @@ describe('AuthController', () => {
 
     it(`should return ${HttpStatus.BAD_REQUEST} when username doesn't match regex`, async () => {
       const res = await request(app.getHttpServer())
-        .post('/register')
+        .post(PATH)
         .send({ username: '$andrzej$', password: mockPassword })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body.message[0]).toMatch('username can only contain');
@@ -71,7 +72,7 @@ describe('AuthController', () => {
 
     it(`should return ${HttpStatus.BAD_REQUEST} when password doesn't match regex`, async () => {
       const res = await request(app.getHttpServer())
-        .post('/register')
+        .post(PATH)
         .send({ username: mockUsername, password: 'password' })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body.message[0]).toMatch('password must contain');

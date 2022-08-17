@@ -30,4 +30,26 @@ export class AuthService {
     const salt = await bcrypt.genSalt();
     return bcrypt.hash(password, salt);
   }
+
+  async validateUser(userCredentialsDto: UserCredentialsDto): Promise<UserSafeDto | null> {
+    const { username, password } = userCredentialsDto;
+    const user = await this.userService.getByUsername(username);
+    if (user) {
+      if (await bcrypt.compare(password, user.password)) {
+        const { password, check, ...userData } = user;
+        return userData;
+      }
+    }
+    return null;
+  }
+
+  async comparePassword(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
+  }
+
+  async login(user: UserInfoDto): Promise<{ access_token: string }> {
+    const { username, _id, isAdmin, ..._ } = user;
+    const payload = { _id, username, isAdmin };
+    return { access_token: this.jwtService.sign(payload) };
+  }
 }

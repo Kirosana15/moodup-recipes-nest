@@ -20,7 +20,7 @@ export const generateUser = (user?: UserPayload): UserPayload => {
   };
 };
 
-export const generateUserFromDb = (user?: Partial<UserDto>): UserDto => ({
+export const generateUserFromDb = (user?: Partial<UserFullDto>): UserFullDto => ({
   _id: user?._id || generateMockId(),
   username: user?.username || faker.internet.userName(),
   password: user?.password || faker.internet.password(10),

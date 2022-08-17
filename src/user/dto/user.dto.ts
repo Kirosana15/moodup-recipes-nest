@@ -6,7 +6,7 @@ const username_match = /^\w*$/;
 const password_match = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])\S*$/;
 
 const username_message = [
-  'Password must have from 4 to 20 characters',
+  'Username must have from 4 to 20 characters',
   'username can only contain letters, numbers and _',
 ];
 const password_message = [

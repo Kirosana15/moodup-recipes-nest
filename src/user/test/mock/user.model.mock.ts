@@ -1,9 +1,9 @@
-import { UserCredentialsDto } from '../../dto/user-credentials.dto';
+import { UserCredentialsDto } from '../../dto/user.dto';
 import { faker } from '@faker-js/faker';
 import { User } from '../../user.schema';
-import { UserDto } from '../../dto/user-from-db.dto';
+import { UserDto } from '../../dto/user.dto';
 
-export const generateUsername = () => `${faker.name.firstName()}_${faker.name.lastName()}`;
+export const generateUsername = () => `${faker.name.firstName()}_${faker.name.lastName()}`.slice(0, 20);
 export const generateMockId = faker.database.mongodbObjectId;
 export const generatePassword = () => faker.internet.password(10, false, undefined, 'aA$1');
 

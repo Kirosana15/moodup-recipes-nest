@@ -14,7 +14,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Headers('Authorization') userCredentialsDto: UserCredentialsDto) {
+  async login(@Body() userCredentialsDto: UserCredentialsDto) {
     return this.authService.login(userCredentialsDto);
   }
 }

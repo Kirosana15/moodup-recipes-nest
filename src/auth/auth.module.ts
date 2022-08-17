@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from '../user/user.module';
-import { EXPIRES_IN, TOKEN_KEY } from './auth.constants';
-import { AuthController } from './auth.controller';
+import { TOKEN_KEY, EXPIRES_IN } from './auth.constants';
 import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [

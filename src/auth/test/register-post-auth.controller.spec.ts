@@ -8,7 +8,7 @@ import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { mockAuthService } from './mock/auth.service';
 
-describe('AuthController', () => {
+describe('POST auth/register', () => {
   let service: AuthService;
   let controller: AuthController;
   let app: NestApplication;

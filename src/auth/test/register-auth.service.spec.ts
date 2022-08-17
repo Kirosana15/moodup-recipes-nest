@@ -39,7 +39,7 @@ describe('AuthService.register()', () => {
     expect(user).toBeDefined;
     expect(user!._id).toBeDefined();
     const createdUser = await userService.getByUsername(user!.username);
-    expect(createdUser?.password).toEqual(mockPassword);
+    expect(createdUser?.password).not.toEqual(mockPassword);
     expect(createSpy).toBeCalledTimes(1);
   });
 

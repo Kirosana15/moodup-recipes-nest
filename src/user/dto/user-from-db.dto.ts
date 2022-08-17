@@ -1,4 +1,4 @@
-export class UserFullDto {
+export class UserDto {
   _id: string;
   username: string;
   password: string;
@@ -7,4 +7,4 @@ export class UserFullDto {
   createdAt: number;
 }
 
-export type UserSafeDto = Omit<UserFullDto, 'password' | 'check'>;
+export type UserSafeDto = Omit<UserDto, 'password' | 'check'>;

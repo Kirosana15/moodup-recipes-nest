@@ -31,7 +31,7 @@ export class AuthService {
     return bcrypt.hash(password, salt);
   }
 
-  async validateUser(userCredentialsDto: UserCredentialsDto): Promise<UserSafeDto | null> {
+  async validateUser(userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto | null> {
     const { username, password } = userCredentialsDto;
     const user = await this.userService.getByUsername(username);
     if (user) {

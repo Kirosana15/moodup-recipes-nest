@@ -1,6 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserCredentialsDto } from '../user/dto/user.credentials.dto';
 import { User } from '../user/user.schema';

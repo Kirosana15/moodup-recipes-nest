@@ -7,9 +7,4 @@ export class UserFullDto {
   createdAt: number;
 }
 
-export class UserSafeDto {
-  _id: string;
-  username: string;
-  isAdmin: boolean;
-  createdAt: number;
-}
+export type UserSafeDto = Omit<UserFullDto, 'password' | 'check'>;

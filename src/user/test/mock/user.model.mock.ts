@@ -1,7 +1,7 @@
 import { UserCredentialsDto } from '../../dto/user.credentials.dto';
 import { faker } from '@faker-js/faker';
 import { User } from '../../user.schema';
-import { UserFullDto } from '../../dto/user.from.db.dto';
+import { UserFullDto } from '../../dto/user-from-db.dto';
 
 export const mockUsername = faker.name.firstName();
 export const mockPassword = faker.internet.password(10, false, undefined, 'aA$1');

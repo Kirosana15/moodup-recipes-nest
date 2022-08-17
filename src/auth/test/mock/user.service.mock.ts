@@ -1,4 +1,4 @@
-import { UserCredentialsDto } from '../../../user/dto/user-from-db.dto';
+import { UserCredentialsDto } from '../../../user/dto/user.dto';
 import { generateUserFromDb, mockPassword } from '../../../user/test/mock/user.model.mock';
 import bcrypt from 'bcrypt';
 

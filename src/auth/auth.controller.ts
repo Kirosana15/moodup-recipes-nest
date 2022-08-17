@@ -1,8 +1,8 @@
 import { Body, Controller, Headers, Post, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserInfo } from 'os';
-import { UserCredentialsDto } from '../user/dto/user-from-db.dto';
-import { UserInfoDto } from '../user/dto/user-from-db.dto';
+import { UserCredentialsDto } from '../user/dto/user.dto';
+import { UserInfoDto } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
 import { TokensDto } from './dto/tokens.dto';
 

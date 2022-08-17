@@ -1,4 +1,4 @@
-import { UserCredentialsDto } from '../../../user/dto/user-from-db.dto';
+import { UserCredentialsDto } from '../../../user/dto/user.dto';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 
 export const mockAuthService = {

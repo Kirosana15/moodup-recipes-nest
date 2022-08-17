@@ -31,7 +31,7 @@ describe('UserService.getByUsername()', () => {
   });
 
   it('should return user', async () => {
-    findOneSpy.mockReturnValue({ exec: () => generateUserFromDb({ username: mockUsername }) });
+    await new userMock(mockCredentials).save();
     const user = await service.getByUsername(mockUsername);
     expect(user).toBeDefined();
     expect(user?.username).toBe(mockUsername);

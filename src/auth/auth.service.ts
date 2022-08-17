@@ -1,10 +1,10 @@
 import { ConflictException, UnauthorizedException, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { UserCredentialsDto } from '../user/dto/user-from-db.dto';
+import { UserCredentialsDto } from '../user/dto/user.dto';
 import { User } from '../user/user.schema';
 import { Error, MongooseError } from 'mongoose';
-import { UserInfoDto } from '../user/dto/user-from-db.dto';
+import { UserInfoDto } from '../user/dto/user.dto';
 import bcrypt from 'bcrypt';
 
 @Injectable()

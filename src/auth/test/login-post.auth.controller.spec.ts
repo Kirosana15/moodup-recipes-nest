@@ -7,7 +7,7 @@ import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { mockAuthService } from './mock/auth.service';
 
-describe('AuthController', () => {
+describe('POST /login', () => {
   let service: AuthService;
   let controller: AuthController;
   let app: NestApplication;
@@ -36,7 +36,7 @@ describe('AuthController', () => {
   });
 
   describe('POST /login', () => {
-    const PATH = '/login';
+    const PATH = '/auth/login';
     it(`should return ${HttpStatus.CREATED} and access token for user`, async () => {
       const res = await request(app.getHttpServer()).post(PATH).send(mockCredentials).expect(HttpStatus.CREATED);
       const user = res.body;
@@ -45,7 +45,7 @@ describe('AuthController', () => {
       expect(loginSpy).toBeCalledTimes(1);
     });
 
-    it(`should return ${HttpStatus.NOT_FOUND} when username is too short`, async () => {
+    it(`should return ${HttpStatus.BAD_REQUEST} when username is too short`, async () => {
       const res = await request(app.getHttpServer())
         .post(PATH)
         .send({ username: 'bob', password: mockPassword })
@@ -53,7 +53,7 @@ describe('AuthController', () => {
       expect(res.body.message[0]).toMatch('username must be longer');
     });
 
-    it(`should return ${HttpStatus.NOT_FOUND} when password is too short`, async () => {
+    it(`should return ${HttpStatus.BAD_REQUEST} when password is too short`, async () => {
       const res = await request(app.getHttpServer())
         .post(PATH)
         .send({ username: mockUsername, password: 'P4$s' })
@@ -61,7 +61,7 @@ describe('AuthController', () => {
       expect(res.body.message[0]).toMatch('password must be longer');
     });
 
-    it(`should return ${HttpStatus.NOT_FOUND} when username doesn't match regex`, async () => {
+    it(`should return ${HttpStatus.BAD_REQUEST} when username doesn't match regex`, async () => {
       const res = await request(app.getHttpServer())
         .post(PATH)
         .send({ username: '$andrzej$', password: mockPassword })
@@ -69,7 +69,7 @@ describe('AuthController', () => {
       expect(res.body.message[0]).toMatch('username can only contain');
     });
 
-    it(`should return ${HttpStatus.NOT_FOUND} when password doesn't match regex`, async () => {
+    it(`should return ${HttpStatus.BAD_REQUEST} when password doesn't match regex`, async () => {
       const res = await request(app.getHttpServer())
         .post(PATH)
         .send({ username: mockUsername, password: 'password' })

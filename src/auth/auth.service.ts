@@ -36,7 +36,6 @@ export class AuthService {
     const user = await this.userService.getByUsername(username);
     if (user) {
       const isValid = await bcrypt.compare(password, user.password);
-      console.log(isValid);
       if (isValid) {
         const { password, check, ...userData } = user;
         return userData;

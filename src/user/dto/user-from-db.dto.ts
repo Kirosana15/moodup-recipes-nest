@@ -7,4 +7,4 @@ export class UserDto {
   createdAt: number;
 }
 
-export type UserSafeDto = Omit<UserDto, 'password' | 'check'>;
+export type UserInfoDto = Omit<UserDto, 'password' | 'check'>;

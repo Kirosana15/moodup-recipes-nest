@@ -25,7 +25,7 @@ export const generateUserFromDb = (user?: Partial<UserFullDto>): UserFullDto => 
   username: user?.username || faker.internet.userName(),
   password: user?.password || faker.internet.password(10),
   isAdmin: user?.isAdmin || false,
-  refreshToken: user?.refreshToken || faker.datatype.string(20),
+  check: user?.check || faker.datatype.string(20),
   createdAt: user?.createdAt || faker.date.past().getTime(),
 });
 

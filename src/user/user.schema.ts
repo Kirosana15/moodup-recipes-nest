@@ -15,7 +15,7 @@ export class User {
   isAdmin: boolean;
 
   @Prop({ default: '', type: 'string' })
-  refreshToken: string;
+  check: string;
 
   @Prop({ default: Date.now(), type: 'number' })
   createdAt: number;

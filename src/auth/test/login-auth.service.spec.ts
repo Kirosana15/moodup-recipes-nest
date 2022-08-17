@@ -5,7 +5,7 @@ import { mockCredentials, mockUsername, UserPayload } from '../../user/test/mock
 import { UserService } from '../../user/user.service';
 import { TOKEN_KEY } from '../auth.constants';
 import { AuthService } from '../auth.service';
-import { userServiceMock } from './mock/user.service';
+import { userServiceMock } from './mock/user.service.mock';
 
 describe('AuthService.login()', () => {
   let authService: AuthService;

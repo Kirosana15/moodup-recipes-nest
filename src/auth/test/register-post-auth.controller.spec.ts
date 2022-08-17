@@ -6,7 +6,7 @@ import { mockCredentials, mockPassword, mockUsername } from '../../user/test/moc
 import { UserController } from '../../user/user.controller';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
-import { mockAuthService } from './mock/auth.service';
+import { mockAuthService } from './mock/auth.service.mock';
 
 describe('POST auth/register', () => {
   let service: AuthService;

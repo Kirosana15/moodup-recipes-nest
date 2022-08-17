@@ -2,7 +2,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../../user/user.service';
 import { AuthService } from '../auth.service';
-import { userServiceMock } from './mock/user.service';
+import { userServiceMock } from './mock/user.service.mock';
 import { TOKEN_KEY } from '../auth.constants';
 import { generateUser, mockCredentials, mockPassword, mockUsername } from '../../user/test/mock/user.model.mock';
 import { ConflictException } from '@nestjs/common';

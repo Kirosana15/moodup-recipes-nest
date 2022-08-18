@@ -34,12 +34,12 @@ export class UserService {
     return null;
   }
 
-  getAllUsers(page = 1, limit = 10): Promise<UserInfoDto[]> {
+  getAll(page = 1, limit = 10): Promise<UserInfoDto[]> {
     return this.userModel
-      .find({}, '_id username isAdmin created')
+      .find({}, '_id username isAdmin createdAt')
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ created: -1 })
+      .sort({ _id: -1 })
       .exec();
   }
 }

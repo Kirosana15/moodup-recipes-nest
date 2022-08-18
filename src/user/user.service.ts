@@ -1,8 +1,9 @@
 import { User, UserDocument } from './user.schema';
-import { UserCredentialsDto , UserDto } from './dto/user.dto';
+import { UserCredentialsDto, UserDto, UserInfoDto } from './dto/user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { PaginatedQueryDto } from '../dto/queries.dto';
 import { generateCheck } from './helpers/generateCheck';
 
 @Injectable()
@@ -32,5 +33,16 @@ export class UserService {
       return newCheck;
     }
     return null;
+  }
+
+  getAll(paginatedQueryDto?: Partial<PaginatedQueryDto>): Promise<UserInfoDto[]> {
+    const page = paginatedQueryDto?.page || 1;
+    const limit = paginatedQueryDto?.limit || 10;
+    return this.userModel
+      .find({}, '_id username isAdmin createdAt')
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ _id: -1 })
+      .exec();
   }
 }

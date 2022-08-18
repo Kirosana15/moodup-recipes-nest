@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { generateCheck } from './helpers/generateCheck';
+
 import { Document } from 'mongoose';
+import { generateCheck } from './helpers/generateCheck';
 
 export type UserDocument = User & Document;
 

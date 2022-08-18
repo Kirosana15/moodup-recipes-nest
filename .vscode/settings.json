@@ -1,0 +1,4 @@
+{
+  "sort-imports.ignore-type-defs": false,
+  "sort-imports.languages": ["javascript", "typescript"]
+}

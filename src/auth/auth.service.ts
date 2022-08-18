@@ -1,10 +1,10 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
-
 import { JwtService } from '@nestjs/jwt';
+import { RefreshTokenDto } from './dto/tokens.dto';
 import { UserService } from '../user/user.service';
+
 import bcrypt from 'bcrypt';
-import { AccessTokenDto, RefreshTokenDto } from './dto/tokens.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +14,11 @@ export class AuthService {
     const { username, password } = userCredentialsDto;
     try {
       const hashedPassword = await this.hashPassword(password);
-      const { password: _password, check: _check, ...user } = await this.userService.create({ username, password: hashedPassword });
+      const {
+        password: _password,
+        check: _check,
+        ...user
+      } = await this.userService.create({ username, password: hashedPassword });
       return user;
     } catch (err: unknown) {
       if ((err as { code: number }).code === 11000) {
@@ -69,7 +73,9 @@ export class AuthService {
         const newAccess = this.jwtService.sign(payload);
         return { access_token: newAccess, refresh_token: newRefresh };
       }
-    } catch (err) {}
+    } catch (err) {
+      throw new UnauthorizedException('Invalid Token ');
+    }
     throw new UnauthorizedException('Invalid Token ');
   }
 }

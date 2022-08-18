@@ -2,7 +2,7 @@ import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User, UserDocument, UserSchema } from '../user.schema';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
-import { generateUserFromDb, mockCredentials, mockUsername } from './mock/user.model.mock';
+import { generateUserFromDb, mockUsername } from './mock/user.model.mock';
 
 import { Model } from 'mongoose';
 import { UserService } from '../user.service';

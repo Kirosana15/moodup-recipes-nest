@@ -1,10 +1,10 @@
 import { User, UserDocument } from './user.schema';
-import { UserCredentialsDto , UserDto } from './dto/user.dto';
+import { UserCredentialsDto, UserDto } from './dto/user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { generateCheck } from './helpers/generateCheck';
-
+import { randomBytes } from 'node:crypto';
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
@@ -32,5 +32,14 @@ export class UserService {
       return newCheck;
     }
     return null;
+  }
+
+  getAllUsers(page = 1, limit = 10): Promise<UserInfoDto[]> {
+    return this.userModel
+      .find({}, '_id username isAdmin created')
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ created: -1 })
+      .exec();
   }
 }

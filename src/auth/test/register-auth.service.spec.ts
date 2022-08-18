@@ -1,11 +1,12 @@
-import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from '../../user/user.service';
+import { mockCredentials, mockPassword } from '../../user/test/mock/user.model.mock';
+
 import { AuthService } from '../auth.service';
-import { userServiceMock } from './mock/user.service.mock';
-import { TOKEN_KEY } from '../auth.constants';
-import { generateUser, mockCredentials, mockPassword, mockUsername } from '../../user/test/mock/user.model.mock';
 import { ConflictException } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { TOKEN_KEY } from '../auth.constants';
+import { UserService } from '../../user/user.service';
+import { userServiceMock } from './mock/user.service.mock';
 
 describe('AuthService.register()', () => {
   let service: AuthService;
@@ -36,9 +37,9 @@ describe('AuthService.register()', () => {
 
   it('should return new user', async () => {
     const user = await service.register(mockCredentials);
-    expect(user).toBeDefined;
-    expect(user!._id).toBeDefined();
-    const createdUser = await userService.getByUsername(user!.username);
+    expect(user).toBeDefined();
+    expect(user._id).toBeDefined();
+    const createdUser = await userService.getByUsername(user.username);
     expect(createdUser?.password).not.toEqual(mockPassword);
     expect(createSpy).toBeCalledTimes(1);
   });

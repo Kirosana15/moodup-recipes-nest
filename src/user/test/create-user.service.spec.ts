@@ -1,10 +1,11 @@
-import { getModelToken, InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
 import { User, UserDocument, UserSchema } from '../user.schema';
-import { UserService } from '../user.service';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
 import { mockCredentials, mockUsername } from './mock/user.model.mock';
+
+import { Model } from 'mongoose';
+import { UserService } from '../user.service';
 
 describe('UserService.create()', () => {
   let service: UserService;

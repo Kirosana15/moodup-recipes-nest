@@ -1,6 +1,6 @@
-import { ApiExtraModels, ApiProperty, OmitType, PickType } from '@nestjs/swagger';
-import { generateMockId, generatePassword, generateUsername } from '../test/mock/user.model.mock';
+import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { Length, Matches } from 'class-validator';
+import { generateMockId, generateUsername } from '../test/mock/user.model.mock';
 
 const username_match = /^\w*$/;
 const password_match = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])\S*$/;

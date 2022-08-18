@@ -1,7 +1,7 @@
-import { UserCredentialsDto } from '../../dto/user.dto';
-import { faker } from '@faker-js/faker';
+import { UserCredentialsDto, UserDto } from '../../dto/user.dto';
+
 import { User } from '../../user.schema';
-import { UserDto } from '../../dto/user.dto';
+import { faker } from '@faker-js/faker';
 
 export const generateUsername = () => `${faker.name.firstName()}_${faker.name.lastName()}`.slice(0, 20);
 export const generateMockId = faker.database.mongodbObjectId;

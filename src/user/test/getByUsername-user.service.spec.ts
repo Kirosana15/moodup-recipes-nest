@@ -2,7 +2,7 @@ import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User, UserDocument, UserSchema } from '../user.schema';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
-import { mockCredentials, mockUsername } from './mock/user.model.mock';
+import { generateUserFromDb, mockCredentials, mockUsername } from './mock/user.model.mock';
 
 import { Model } from 'mongoose';
 import { UserService } from '../user.service';
@@ -33,9 +33,9 @@ describe('UserService.getByUsername()', () => {
 
   it('should return user', async () => {
     const mockName = mockUsername;
-    findOneSpy.mockReturnValue({ exec: () => generateUserFromDb({ username: mockName }) });
+    findOneSpy.mockReturnValue({ lean: () => ({ exec: () => generateUserFromDb({ username: mockName }) }) });
     const user = await service.getByUsername(mockName);
-    expect(user).toBeDefined();
+    expect(user).not.toBeNull();
     expect(user?.username).toBe(mockName);
     expect(user?._id).toBeDefined();
     expect(findOneSpy).toBeCalledTimes(1);

@@ -1,10 +1,11 @@
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
 import { User, UserDocument, UserSchema } from '../user.schema';
-import { UserService } from '../user.service';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
 import { generateUserFromDb, mockId, mockUsername } from './mock/user.model.mock';
+
+import { Model } from 'mongoose';
+import { UserService } from '../user.service';
 
 describe('UserService.getById()', () => {
   let service: UserService;
@@ -31,10 +32,10 @@ describe('UserService.getById()', () => {
   });
 
   it('should return user', async () => {
-    findByIdSpy.mockReturnValue({ exec: () => generateUserFromDb({ _id: mockId }) });
+    findByIdSpy.mockReturnValue({ lean: () => ({ exec: () => generateUserFromDb({ _id: mockId }) }) });
     const user = await service.getById(mockUsername);
     expect(user).toBeDefined();
-    expect(user!._id).toBe(mockId);
+    expect(user?._id).toBe(mockId);
     expect(findByIdSpy).toBeCalledTimes(1);
   });
 });

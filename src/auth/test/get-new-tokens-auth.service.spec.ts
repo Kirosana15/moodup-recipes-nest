@@ -7,7 +7,7 @@ import { TOKEN_KEY } from '../auth.constants';
 import { UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../../user/user.service';
 import { generateCheck } from '../../user/helpers/generateCheck';
-import { userServiceMock } from './mock/user.service';
+import { mockUserService } from '../../user/test/mock/user.service.mock';
 
 describe('AuthService.getNewTokens()', () => {
   let authService: AuthService;
@@ -20,7 +20,7 @@ describe('AuthService.getNewTokens()', () => {
         JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: '60m' } }),
         {
           module: class FakeModule {},
-          providers: [{ provide: UserService, useValue: userServiceMock }],
+          providers: [{ provide: UserService, useValue: mockUserService }],
           exports: [UserService],
         },
       ],

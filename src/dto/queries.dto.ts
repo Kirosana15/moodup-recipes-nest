@@ -1,16 +1,18 @@
-import { Optional } from '@nestjs/common';
+import { IsNumber, IsOptional } from 'class-validator';
+
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumberString } from 'class-validator';
 
 export class PaginatedQueryDto {
-  @Optional()
   @ApiProperty({ description: 'page number' })
+  @IsNumber()
+  @IsOptional()
   @Type(() => Number)
-  page = 1;
+  page: number;
 
-  @Optional()
   @ApiProperty({ description: 'this many results per page' })
+  @IsNumber()
+  @IsOptional()
   @Type(() => Number)
-  limit = 20;
+  limit: number;
 }

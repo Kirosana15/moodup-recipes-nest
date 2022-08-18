@@ -1,15 +1,13 @@
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Model } from 'mongoose';
-import { User, UserDocument, UserSchema } from '../user.schema';
-import { UserService } from '../user.service';
+import { User, UserSchema } from '../user.schema';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
 import { mockCredentials, mockId } from './mock/user.model.mock';
 
+import { MongooseModule } from '@nestjs/mongoose';
+import { UserService } from '../user.service';
+
 describe('UserService.refreshToken()', () => {
   let service: UserService;
-  let userMock: Model<UserDocument>;
-  let findByIdSpy: jest.SpyInstance;
   beforeEach(async () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
@@ -18,8 +16,6 @@ describe('UserService.refreshToken()', () => {
     }).compile();
 
     service = module.get(UserService);
-    userMock = module.get(getModelToken(User.name));
-    findByIdSpy = jest.spyOn(userMock, 'findById');
   });
 
   afterAll(async () => {

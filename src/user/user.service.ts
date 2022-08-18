@@ -1,11 +1,10 @@
 import { User, UserDocument } from './user.schema';
-import { UserCredentialsDto, UserDto } from './dto/user.dto';
+import { UserCredentialsDto, UserDto, UserInfoDto } from './dto/user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { generateCheck } from './helpers/generateCheck';
-import { randomBytes } from 'node:crypto';
 import { PaginatedQueryDto } from '../dto/queries.dto';
+import { generateCheck } from './helpers/generateCheck';
 
 @Injectable()
 export class UserService {
@@ -36,8 +35,9 @@ export class UserService {
     return null;
   }
 
-  getAll(paginatedQueryDto: PaginatedQueryDto): Promise<UserInfoDto[]> {
-    const { page, limit } = paginatedQueryDto;
+  getAll(paginatedQueryDto?: Partial<PaginatedQueryDto>): Promise<UserInfoDto[]> {
+    const page = paginatedQueryDto?.page || 1;
+    const limit = paginatedQueryDto?.limit || 10;
     return this.userModel
       .find({}, '_id username isAdmin createdAt')
       .skip((page - 1) * limit)

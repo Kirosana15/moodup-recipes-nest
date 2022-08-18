@@ -27,7 +27,7 @@ export const generateUser = (user?: UserPayload): UserPayload => {
   };
 };
 
-export const generateUserFromDb = (user?: Partial<UserFullDto>): UserFullDto => ({
+export const generateUserFromDb = (user?: Partial<UserDto>): UserDto => ({
   _id: user?._id || generateMockId(),
   username: user?.username || generateUsername(),
   password: user?.password || generatePassword(),

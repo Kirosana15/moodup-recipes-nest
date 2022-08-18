@@ -32,10 +32,11 @@ describe('UserService.getByUsername()', () => {
   });
 
   it('should return user', async () => {
-    await new userMock(mockCredentials).save();
-    const user = await service.getByUsername(mockUsername);
+    const mockName = mockUsername;
+    findOneSpy.mockReturnValue({ exec: () => generateUserFromDb({ username: mockName }) });
+    const user = await service.getByUsername(mockName);
     expect(user).toBeDefined();
-    expect(user?.username).toBe(mockUsername);
+    expect(user?.username).toBe(mockName);
     expect(user?._id).toBeDefined();
     expect(findOneSpy).toBeCalledTimes(1);
   });

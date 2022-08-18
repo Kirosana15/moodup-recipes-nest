@@ -31,7 +31,7 @@ describe('UserService.getById()', () => {
   });
 
   it('should return user', async () => {
-    findByIdSpy.mockReturnValue(generateUserFromDb({ _id: mockId }));
+    findByIdSpy.mockReturnValue({ exec: () => generateUserFromDb({ _id: mockId }) });
     const user = await service.getById(mockUsername);
     expect(user).toBeDefined();
     expect(user!._id).toBe(mockId);

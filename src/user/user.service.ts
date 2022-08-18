@@ -24,7 +24,7 @@ export class UserService {
   }
 
   async refreshToken(id: string): Promise<string | null> {
-    const user = await this.userModel.findById(id);
+    const user = await this.userModel.findById(id).exec();
     if (user) {
       const newCheck = generateCheck();
       user.check = newCheck;

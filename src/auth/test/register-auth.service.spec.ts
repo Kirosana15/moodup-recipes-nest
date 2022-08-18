@@ -6,7 +6,7 @@ import { ConflictException } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { TOKEN_KEY } from '../auth.constants';
 import { UserService } from '../../user/user.service';
-import { userServiceMock } from './mock/user.service.mock';
+import { mockUserService } from '../../user/test/mock/user.service.mock';
 
 describe('AuthService.register()', () => {
   let service: AuthService;
@@ -19,7 +19,7 @@ describe('AuthService.register()', () => {
         JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: '60m' } }),
         {
           module: class FakeModule {},
-          providers: [{ provide: UserService, useValue: userServiceMock }],
+          providers: [{ provide: UserService, useValue: mockUserService }],
           exports: [UserService],
         },
       ],

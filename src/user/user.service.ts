@@ -3,6 +3,7 @@ import { UserCredentialsDto , UserDto } from './dto/user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
+import { generateCheck } from './helpers/generateCheck';
 
 @Injectable()
 export class UserService {
@@ -16,5 +17,20 @@ export class UserService {
 
   async getByUsername(username: string): Promise<UserDto | null> {
     return this.userModel.findOne({ username }).lean().exec();
+  }
+
+  async getById(id: string): Promise<UserDto | null> {
+    return this.userModel.findById(id).lean().exec();
+  }
+
+  async refreshToken(id: string): Promise<string | null> {
+    const user = await this.userModel.findById(id).exec();
+    if (user) {
+      const newCheck = generateCheck();
+      user.check = newCheck;
+      await user.save();
+      return newCheck;
+    }
+    return null;
   }
 }

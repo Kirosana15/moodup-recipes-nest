@@ -2,6 +2,7 @@ import { UserCredentialsDto, UserDto } from '../../dto/user.dto';
 
 import { User } from '../../user.schema';
 import { faker } from '@faker-js/faker';
+import { generateCheck } from '../../helpers/generateCheck';
 
 export const generateUsername = () => `${faker.name.firstName()}_${faker.name.lastName()}`.slice(0, 20);
 export const generateMockId = faker.database.mongodbObjectId;
@@ -11,8 +12,12 @@ export const mockUsername = generateUsername();
 export const mockPassword = generatePassword();
 export const mockId = generateMockId();
 export const mockCredentials: UserCredentialsDto = { username: mockUsername, password: mockPassword };
-
+export const mockCheck = generateCheck();
 export type UserPayload = Partial<User>;
+
+export const generateMockToken = () => {
+  return Array.from(new Array(3), () => faker.internet.password(20, false, /[^\.]/)).join('.');
+};
 
 export const generateUser = (user?: UserPayload): UserPayload => {
   return {

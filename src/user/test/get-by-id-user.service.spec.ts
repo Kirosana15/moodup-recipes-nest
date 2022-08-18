@@ -2,15 +2,15 @@ import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User, UserDocument, UserSchema } from '../user.schema';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
-import { mockCredentials, mockUsername } from './mock/user.model.mock';
+import { generateUserFromDb, mockId, mockUsername } from './mock/user.model.mock';
 
 import { Model } from 'mongoose';
 import { UserService } from '../user.service';
 
-describe('UserService.getByUsername()', () => {
+describe('UserService.getById()', () => {
   let service: UserService;
   let userMock: Model<UserDocument>;
-  let findOneSpy: jest.SpyInstance;
+  let findByIdSpy: jest.SpyInstance;
   beforeEach(async () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
@@ -20,7 +20,7 @@ describe('UserService.getByUsername()', () => {
 
     service = module.get(UserService);
     userMock = module.get(getModelToken(User.name));
-    findOneSpy = jest.spyOn(userMock, 'findOne');
+    findByIdSpy = jest.spyOn(userMock, 'findById');
   });
 
   afterAll(async () => {
@@ -32,11 +32,10 @@ describe('UserService.getByUsername()', () => {
   });
 
   it('should return user', async () => {
-    await new userMock(mockCredentials).save();
-    const user = await service.getByUsername(mockUsername);
+    findByIdSpy.mockReturnValue({ lean: () => ({ exec: () => generateUserFromDb({ _id: mockId }) }) });
+    const user = await service.getById(mockUsername);
     expect(user).toBeDefined();
-    expect(user?.username).toBe(mockUsername);
-    expect(user?._id).toBeDefined();
-    expect(findOneSpy).toBeCalledTimes(1);
+    expect(user?._id).toBe(mockId);
+    expect(findByIdSpy).toBeCalledTimes(1);
   });
 });

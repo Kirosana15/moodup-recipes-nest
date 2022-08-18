@@ -3,7 +3,7 @@ import { UserCredentialsDto , UserDto } from './dto/user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { randomBytes } from 'node:crypto';
+import { generateCheck } from './helpers/generateCheck';
 
 @Injectable()
 export class UserService {
@@ -26,7 +26,7 @@ export class UserService {
   async refreshToken(id: string): Promise<string | null> {
     const user = await this.userModel.findById(id);
     if (user) {
-      const newCheck = randomBytes(20).toString('hex');
+      const newCheck = generateCheck();
       user.check = newCheck;
       await user.save();
       return newCheck;

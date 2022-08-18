@@ -57,16 +57,19 @@ export class AuthService {
     return { access_token: this.jwtService.sign(payload) };
   }
 
-  async getNewTokens(refreshToken: string): Promise<{ access_token: string; refresh_token: string } | null> {
-    const { _id, check } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
-    const user = await this.userService.getById(_id);
-    if (user?.check === check) {
-      const newCheck = await this.userService.refreshToken(_id);
-      const newRefresh = this.jwtService.sign({ _id, check: newCheck });
-      const payload = user as AccessTokenDto;
-      const newAccess = this.jwtService.sign(payload);
-      return { access_token: newAccess, refresh_token: newRefresh };
-    }
-    return null;
+  async getNewTokens(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
+    try {
+      const { _id, check } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
+      const user = await this.userService.getById(_id);
+      if (user?.check === check) {
+        const newCheck = await this.userService.refreshToken(_id);
+        const newRefresh = this.jwtService.sign({ _id, check: newCheck });
+        const { _id: id, username, isAdmin, createdAt } = user;
+        const payload = { _id: id, username, isAdmin, createdAt };
+        const newAccess = this.jwtService.sign(payload);
+        return { access_token: newAccess, refresh_token: newRefresh };
+      }
+    } catch (err) {}
+    throw new UnauthorizedException('Invalid Token ');
   }
 }

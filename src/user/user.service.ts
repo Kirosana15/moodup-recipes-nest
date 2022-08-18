@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { generateCheck } from './helpers/generateCheck';
 import { randomBytes } from 'node:crypto';
+
 @Injectable()
 export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}

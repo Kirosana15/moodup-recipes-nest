@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { UserCredentialsDto } from './dto/user-credentials.dto';
-import { UserDto } from './dto/user-from-db.dto';
 import { User, UserDocument } from './user.schema';
+import { UserCredentialsDto , UserDto } from './dto/user.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class UserService {
@@ -11,10 +10,11 @@ export class UserService {
 
   async create(userCredentialsDto: UserCredentialsDto): Promise<UserDto> {
     const newUser = new this.userModel(userCredentialsDto);
-    return newUser.save();
+    const user = await newUser.save();
+    return user.toObject();
   }
 
   async getByUsername(username: string): Promise<UserDto | null> {
-    return this.userModel.findOne({ username }).exec();
+    return this.userModel.findOne({ username }).lean().exec();
   }
 }

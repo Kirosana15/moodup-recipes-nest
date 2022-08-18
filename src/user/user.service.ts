@@ -20,7 +20,7 @@ export class UserService {
   }
 
   async getById(id: string): Promise<UserDto | null> {
-    return this.userModel.findById(id);
+    return this.userModel.findById(id).lean().exec();
   }
 
   async refreshToken(id: string): Promise<string | null> {

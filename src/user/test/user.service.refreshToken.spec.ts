@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { User, UserDocument, UserSchema } from '../user.schema';
 import { UserService } from '../user.service';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
-import { generateUser, generateUserFromDb, mockCredentials, mockId, mockUsername } from './mock/user.model.mock';
+import { mockCredentials, mockId } from './mock/user.model.mock';
 
 describe('UserService.refreshToken()', () => {
   let service: UserService;
@@ -31,8 +31,13 @@ describe('UserService.refreshToken()', () => {
   });
 
   it('should return a new refresh token', async () => {
+    const newRefresh = await service.refreshToken(mockId);
+    expect(newRefresh).toBeDefined();
+  });
+
+  it('should change users check value in database', async () => {
     const user = await service.create(mockCredentials);
-    const newRefresh = await service.refreshToken(user._id);
+    await service.refreshToken(user._id);
     const changedUser = await service.getById(user._id);
     expect(user.check).not.toBe(changedUser?.check);
   });

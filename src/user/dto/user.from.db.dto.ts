@@ -3,7 +3,7 @@ export class UserFullDto {
   username: string;
   password: string;
   isAdmin: boolean;
-  refreshToken: string;
+  check: string;
   createdAt: number;
 }
 

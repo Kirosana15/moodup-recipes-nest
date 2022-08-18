@@ -1,12 +1,12 @@
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-
 import { NestApplication } from '@nestjs/core';
-import { UserController } from '../user.controller';
+import { Test, TestingModule } from '@nestjs/testing';
+import request from 'supertest';
+
 import { UserInfoDto } from '../dto/user.dto';
+import { UserController } from '../user.controller';
 import { UserService } from '../user.service';
 import { mockUserService } from './mock/user.service.mock';
-import request from 'supertest';
 
 describe('POST /login', () => {
   let service: UserService;

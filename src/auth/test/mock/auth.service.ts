@@ -1,6 +1,5 @@
-import { generateMockToken, generateUserFromDb } from '../../../user/test/mock/user.model.mock';
-
 import { UserCredentialsDto } from '../../../user/dto/user.dto';
+import { generateMockToken, generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 
 export const mockAuthService = {
   register: jest

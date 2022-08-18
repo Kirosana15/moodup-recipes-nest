@@ -10,7 +10,7 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('/all')
-  getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto): Promise<UserInfoDto[]> {
+  getAllUsers(@Query() paginatedQueryDto?: PaginatedQueryDto): Promise<UserInfoDto[]> {
     return this.userService.getAll(paginatedQueryDto);
   }
 }

@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { generateCheck } from './helpers/generateCheck';
 import { randomBytes } from 'node:crypto';
+import { PaginatedQueryDto } from '../dto/queries.dto';
 
 @Injectable()
 export class UserService {
@@ -35,7 +36,8 @@ export class UserService {
     return null;
   }
 
-  getAll(page = 1, limit = 10): Promise<UserInfoDto[]> {
+  getAll(paginatedQueryDto: PaginatedQueryDto): Promise<UserInfoDto[]> {
+    const { page, limit } = paginatedQueryDto;
     return this.userModel
       .find({}, '_id username isAdmin createdAt')
       .skip((page - 1) * limit)

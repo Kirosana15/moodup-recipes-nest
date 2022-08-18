@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import { PaginatedQueryDto } from '../dto/queries.dto';
 import { UserInfoDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
@@ -8,9 +9,8 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @ApiResponse({ isArray: true })
   @Get('/all')
-  getAllUsers(@Query('limit') limit?: number, @Query('page') page?: number): Promise<UserInfoDto[]> {
-    return this.userService.getAll(limit, page);
+  getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto): Promise<UserInfoDto[]> {
+    return this.userService.getAll(paginatedQueryDto);
   }
 }

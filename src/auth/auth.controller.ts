@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Patch, Post, Req, UseGuards, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 
 import { ApiTags } from '@nestjs/swagger';

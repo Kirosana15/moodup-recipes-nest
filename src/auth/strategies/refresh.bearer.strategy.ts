@@ -17,7 +17,7 @@ export class RefreshBearerStrategy extends PassportStrategy(Strategy, 'refresh-j
   }
 
   async validate(payload: RefreshTokenDto): Promise<TokensDto> {
-    return this.authService.refreshToken(payload);
+    return this.authService.refreshTokens(payload);
   }
 }
 

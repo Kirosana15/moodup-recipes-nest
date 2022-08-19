@@ -43,16 +43,16 @@ export class AuthService {
         return user;
       }
     }
-    throw new UnauthorizedException();
+    return null;
   }
 
   async comparePassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
   }
 
-  async refreshTokens(refreshToken: string): Promise<TokensDto> {
+  async refreshTokens(payload: RefreshTokenDto): Promise<TokensDto> {
     try {
-      const { _id, check } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
+      const { _id, check } = payload;
       const user = await this.userService.getById(_id);
       if (user?.check === check) {
         return this.getNewTokens(user);

@@ -1,6 +1,6 @@
-import { UserCredentialsDto, UserDto, UserInfoDto } from '../../dto/user.dto';
-
 import { faker } from '@faker-js/faker';
+
+import { UserCredentialsDto, UserDto, UserInfoDto } from '../../dto/user.dto';
 import { generateCheck } from '../../helpers/generateCheck';
 
 export const generateUsername = () => `${faker.name.firstName()}_${faker.name.lastName()}`.slice(0, 20);
@@ -15,7 +15,7 @@ export const mockCheck = generateCheck();
 export type UserPayload = Partial<UserDto>;
 
 export const generateMockToken = () => {
-  return Array.from(new Array(3), () => faker.internet.password(20, false, /[^\.]/)).join('.');
+  return Array.from(new Array(3), () => faker.internet.password(20, false, /[^.]/)).join('.');
 };
 
 export const generateUser = (user?: UserPayload): UserInfoDto => {

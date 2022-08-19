@@ -1,5 +1,6 @@
 import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { Length, Matches } from 'class-validator';
+
 import { generateMockId, generateUsername } from '../test/mock/user.model.mock';
 
 const username_match = /^\w*$/;

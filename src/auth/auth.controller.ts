@@ -1,10 +1,11 @@
-import { Body, Controller, Headers, HttpCode, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Patch, Post, Req, UseGuards, Req, UseGuards } from '@nestjs/common';
 import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { TokensDto } from './dto/tokens.dto';
 import { BasicAuthGuard } from './strategies/basic.strategy';
+import { RefreshBearerGuard } from './strategies/refresh.bearer.strategy';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -22,8 +23,9 @@ export class AuthController {
     return req.user;
   }
 
+  @UseGuards(RefreshBearerGuard)
   @Patch('/refresh-token')
-  async refreshToken(@Headers('Authorization') refreshToken: string) {
-    return this.authService.refreshTokens(refreshToken);
+  async refreshToken(@Req() req: any) {
+    return req.user;
   }
 }

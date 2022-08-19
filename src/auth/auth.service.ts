@@ -1,10 +1,10 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserCredentialsDto, UserDto, UserInfoDto } from '../user/dto/user.dto';
-import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
-import { UserService } from '../user/user.service';
-
 import bcrypt from 'bcrypt';
+
+import { UserCredentialsDto, UserDto, UserInfoDto } from '../user/dto/user.dto';
+import { UserService } from '../user/user.service';
+import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +43,7 @@ export class AuthService {
         return user;
       }
     }
-    return null;
+    throw new UnauthorizedException();
   }
 
   async comparePassword(password: string, hash: string): Promise<boolean> {

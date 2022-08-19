@@ -7,6 +7,7 @@ import { EXPIRES_IN, TOKEN_KEY } from './auth.constants';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { BasicStrategy } from './strategies/basic.strategy';
+import { RefreshBearerStrategy } from './strategies/refresh.bearer.strategy';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { BasicStrategy } from './strategies/basic.strategy';
     PassportModule,
     JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: EXPIRES_IN } }),
   ],
-  providers: [AuthService, BasicStrategy],
+  providers: [AuthService, BasicStrategy, RefreshBearerStrategy],
   controllers: [AuthController],
   exports: [AuthService, PassportModule],
 })

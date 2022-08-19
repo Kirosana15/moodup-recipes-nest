@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 import { RefreshTokenDto } from './dto/tokens.dto';
 import { UserService } from '../user/user.service';
 

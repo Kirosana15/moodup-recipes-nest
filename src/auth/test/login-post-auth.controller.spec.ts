@@ -1,12 +1,12 @@
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
+import { NestApplication } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockCredentials, mockPassword, mockUsername } from '../../user/test/mock/user.model.mock';
+import request from 'supertest';
 
+import { mockCredentials, mockPassword, mockUsername } from '../../user/test/mock/user.model.mock';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
-import { NestApplication } from '@nestjs/core';
 import { mockAuthService } from './mock/auth.service.mock';
-import request from 'supertest';
 
 describe('POST /login', () => {
   let service: AuthService;
@@ -39,7 +39,10 @@ describe('POST /login', () => {
   describe('POST /login', () => {
     const PATH = '/auth/login';
     it(`should return ${HttpStatus.CREATED} and access token for user`, async () => {
-      const res = await request(app.getHttpServer()).post(PATH).send(mockCredentials).expect(HttpStatus.CREATED);
+      const res = await request(app.getHttpServer())
+        .post(PATH)
+        .set({ Authentication: mockCredentials })
+        .expect(HttpStatus.CREATED);
       const user = res.body;
       expect(user._id).toBeDefined();
       expect(user.username).toBe(mockUsername);

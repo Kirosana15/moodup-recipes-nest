@@ -1,9 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { User } from '../../user/user.schema';
 import { TOKEN_KEY } from '../auth.constants';
 import { AuthService } from '../auth.service';
 import { RefreshTokenDto, TokensDto } from '../dto/tokens.dto';

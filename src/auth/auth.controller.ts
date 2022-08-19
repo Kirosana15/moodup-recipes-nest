@@ -2,10 +2,11 @@ import { Body, Controller, HttpCode, Patch, Post, Req, UseGuards, Req, UseGuards
 import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 
 import { ApiTags } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
+
 import { TokensDto } from './dto/tokens.dto';
 import { BasicAuthGuard } from './strategies/basic.strategy';
 import { RefreshBearerGuard } from './strategies/refresh.bearer.strategy';
+import { AuthService } from './auth.service';
 
 @ApiTags('Auth')
 @Controller('auth')

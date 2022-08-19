@@ -9,7 +9,7 @@ import { UserService } from '../../user/user.service';
 import { generateCheck } from '../../user/helpers/generateCheck';
 import { mockUserService } from '../../user/test/mock/user.service.mock';
 
-describe('AuthService.getNewTokens()', () => {
+describe('AuthService.refreshTokens()', () => {
   let authService: AuthService;
   let userService: UserService;
   let getByIdSpy: jest.SpyInstance;
@@ -41,23 +41,23 @@ describe('AuthService.getNewTokens()', () => {
     const { _id, check } = user;
     const token = jwt.sign({ _id, check });
     getByIdSpy.mockResolvedValueOnce(user);
-    const { access_token, refresh_token } = await authService.getNewTokens(token);
-    expect(access_token).toBeDefined();
-    expect(refresh_token).toBeDefined();
+    const { accessToken, refreshToken } = await authService.refreshTokens(token);
+    expect(accessToken).toBeDefined();
+    expect(refreshToken).toBeDefined();
     expect(getByIdSpy).toBeCalledTimes(1);
-    const decoded = <AccessTokenDto>jwt.decode(access_token);
+    const decoded = <AccessTokenDto>jwt.decode(accessToken);
     expect(decoded.username).toBe(user.username);
-    expect(refresh_token).not.toBe(token);
+    expect(refreshToken).not.toEqual(token);
     expect(decoded._id).toBe(_id);
   });
 
   it('should throw UnauthorizedException when invalid token is presented', async () => {
     const token = jwt.sign({ _id: mockId, check: generateCheck() });
-    await expect(authService.getNewTokens(token)).rejects.toThrow(UnauthorizedException);
+    await expect(authService.refreshTokens(token)).rejects.toThrow(UnauthorizedException);
   });
 
   it('should throw UnauthorizedException when user does not exist', async () => {
-    await expect(authService.getNewTokens('token')).rejects.toThrow(UnauthorizedException);
+    await expect(authService.refreshTokens('token')).rejects.toThrow(UnauthorizedException);
   });
 
   it('should throw UnauthorizedException when invalid check does not match database', async () => {
@@ -65,6 +65,6 @@ describe('AuthService.getNewTokens()', () => {
     getByIdSpy.mockResolvedValueOnce(user);
     const { _id } = user;
     const token = jwt.sign({ _id, check: 'check' });
-    await expect(authService.getNewTokens(token)).rejects.toThrow(UnauthorizedException);
+    await expect(authService.refreshTokens(token)).rejects.toThrow(UnauthorizedException);
   });
 });

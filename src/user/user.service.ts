@@ -24,13 +24,10 @@ export class UserService {
     return this.userModel.findById(id).lean().exec();
   }
 
-  async refreshToken(id: string): Promise<string | null> {
+  async refreshToken(id: string): Promise<UserDto | null> {
     const user = await this.userModel.findById(id).exec();
     if (user) {
-      const newCheck = generateCheck();
-      user.check = newCheck;
-      await user.save();
-      return newCheck;
+      return this.updateCheck(user);
     }
     return null;
   }
@@ -44,5 +41,10 @@ export class UserService {
       .limit(limit)
       .sort({ _id: -1 })
       .exec();
+  }
+
+  updateCheck(user: UserDto): Promise<UserDto | null> {
+    const newCheck = generateCheck();
+    return this.userModel.findByIdAndUpdate(user._id, { check: newCheck }, { new: true }).lean().exec();
   }
 }

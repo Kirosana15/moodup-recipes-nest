@@ -64,9 +64,13 @@ export class AuthService {
   }
 
   async getNewTokens(user: UserDto): Promise<TokensDto> {
-    const { password: _password, check: _check, ...userData } = user;
+    const updatedUser = await this.userService.updateCheck(user);
+    if (!updatedUser) {
+      throw UnauthorizedException;
+    }
+    const { password: _password, check: _check, ...userData } = updatedUser;
     const accessToken = this.jwtService.sign(userData);
-    const refreshToken = this.jwtService.sign({ _id: user._id, check: user.check });
+    const refreshToken = this.jwtService.sign({ _id: updatedUser._id, check: updatedUser.check });
     return { accessToken, refreshToken };
   }
 }

@@ -38,7 +38,7 @@ export class AuthService {
     const { username, password } = userCredentialsDto;
     const user = await this.userService.getByUsername(username);
     if (user) {
-      const isValid = await bcrypt.compare(password, user.password);
+      const isValid = await this.comparePassword(password, user.password);
       if (isValid) {
         return user;
       }
@@ -66,7 +66,7 @@ export class AuthService {
   async getNewTokens(user: UserDto): Promise<TokensDto> {
     const updatedUser = await this.userService.updateCheck(user);
     if (!updatedUser) {
-      throw UnauthorizedException;
+      throw new UnauthorizedException();
     }
     const { password: _password, check: _check, ...userData } = updatedUser;
     const accessToken = this.jwtService.sign(userData);

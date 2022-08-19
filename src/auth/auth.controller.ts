@@ -24,6 +24,6 @@ export class AuthController {
 
   @Patch('/refresh-token')
   async refreshToken(@Headers('Authorization') refreshToken: string) {
-    return this.authService.getNewTokens(refreshToken);
+    return this.authService.refreshTokens(refreshToken);
   }
 }

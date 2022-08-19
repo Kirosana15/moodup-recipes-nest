@@ -6,18 +6,20 @@ import request from 'supertest';
 import { mockCredentials, mockPassword, mockUsername } from '../../user/test/mock/user.model.mock';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
+import { BasicStrategy } from '../strategies/basic.strategy';
 import { mockAuthService } from './mock/auth.service.mock';
 
 describe('POST /login', () => {
   let service: AuthService;
   let controller: AuthController;
   let app: NestApplication;
-  let loginSpy: jest.SpyInstance;
+  let validateUserSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
+        BasicStrategy,
         {
           provide: AuthService,
           useValue: mockAuthService,
@@ -26,7 +28,7 @@ describe('POST /login', () => {
     }).compile();
     controller = module.get<AuthController>(AuthController);
     service = module.get<AuthService>(AuthService);
-    loginSpy = jest.spyOn(service, 'login');
+    validateUserSpy = jest.spyOn(service, 'validateUser');
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
@@ -38,47 +40,32 @@ describe('POST /login', () => {
 
   describe('POST /login', () => {
     const PATH = '/auth/login';
-    it(`should return ${HttpStatus.CREATED} and access token for user`, async () => {
-      const res = await request(app.getHttpServer())
-        .post(PATH)
-        .set({ Authentication: mockCredentials })
-        .expect(HttpStatus.CREATED);
-      const user = res.body;
-      expect(user._id).toBeDefined();
-      expect(user.username).toBe(mockUsername);
-      expect(loginSpy).toBeCalledTimes(1);
+    it(`should return ${HttpStatus.OK} and set of tokens for user`, async () => {
+      const { username, password } = mockCredentials;
+      const res = await request(app.getHttpServer()).post(PATH).auth(username, password).expect(HttpStatus.OK);
+      const tokens = res.body;
+      const { accessToken, refreshToken } = tokens;
+      expect(accessToken).toBeDefined();
+      expect(refreshToken).toBeDefined();
+      expect(validateUserSpy).toBeCalledTimes(1);
     });
 
-    it(`should return ${HttpStatus.BAD_REQUEST} when username is too short`, async () => {
+    it(`should return ${HttpStatus.UNAUTHORIZED} when login does not exist in database`, async () => {
+      validateUserSpy.mockRejectedValueOnce(null);
       const res = await request(app.getHttpServer())
         .post(PATH)
         .send({ username: 'bob', password: mockPassword })
-        .expect(HttpStatus.BAD_REQUEST);
-      expect(res.body.message[0]).toMatch('username must be longer');
+        .expect(HttpStatus.UNAUTHORIZED);
+      expect(res.body.message).toMatch('Unauthorized');
     });
 
-    it(`should return ${HttpStatus.BAD_REQUEST} when password is too short`, async () => {
+    it(`should return ${HttpStatus.UNAUTHORIZED} when password does not match the username`, async () => {
+      validateUserSpy.mockRejectedValueOnce(null);
       const res = await request(app.getHttpServer())
         .post(PATH)
         .send({ username: mockUsername, password: 'P4$s' })
-        .expect(HttpStatus.BAD_REQUEST);
-      expect(res.body.message[0]).toMatch('password must be longer');
-    });
-
-    it(`should return ${HttpStatus.BAD_REQUEST} when username doesn't match regex`, async () => {
-      const res = await request(app.getHttpServer())
-        .post(PATH)
-        .send({ username: '$andrzej$', password: mockPassword })
-        .expect(HttpStatus.BAD_REQUEST);
-      expect(res.body.message[0]).toMatch('username can only contain');
-    });
-
-    it(`should return ${HttpStatus.BAD_REQUEST} when password doesn't match regex`, async () => {
-      const res = await request(app.getHttpServer())
-        .post(PATH)
-        .send({ username: mockUsername, password: 'password' })
-        .expect(HttpStatus.BAD_REQUEST);
-      expect(res.body.message[0]).toMatch('password must contain');
+        .expect(HttpStatus.UNAUTHORIZED);
+      expect(res.body.message).toMatch('Unauthorized');
     });
   });
 });

@@ -50,16 +50,6 @@ export class AuthService {
     return bcrypt.compare(password, hash);
   }
 
-  async login(userCredentialsDto: UserCredentialsDto): Promise<{ access_token: string }> {
-    const user = await this.validateUser(userCredentialsDto);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    const { username, _id, isAdmin, ..._ } = user;
-    const payload = { _id, username, isAdmin };
-    return { access_token: this.jwtService.sign(payload) };
-  }
-
   async refreshTokens(refreshToken: string): Promise<TokensDto> {
     try {
       const { _id, check } = <RefreshTokenDto>this.jwtService.verify(refreshToken);

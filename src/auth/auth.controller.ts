@@ -1,11 +1,10 @@
-import { Body, Controller, Headers, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Headers, HttpCode, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { TokensDto } from './dto/tokens.dto';
 import { BasicAuthGuard } from './strategies/basic.strategy';
-import { generateMockToken } from '../user/test/mock/user.model.mock';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -18,7 +17,8 @@ export class AuthController {
   }
   @UseGuards(BasicAuthGuard)
   @Post('login')
-  async login(@Req() req: any): Promise<UserInfoDto> {
+  @HttpCode(200)
+  async login(@Req() req: any): Promise<TokensDto> {
     return req.user;
   }
 

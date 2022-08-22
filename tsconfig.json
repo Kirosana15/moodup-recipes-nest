@@ -8,6 +8,5 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "emitDecoratorMetadata": true
-  },
-  "exclude": ["src/tests/"]
+  }
 }

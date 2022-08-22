@@ -1,8 +1,6 @@
 import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { Length, Matches } from 'class-validator';
 
-import { generateMockId, generateUsername } from '../test/mock/user.model.mock';
-
 const username_match = /^\w*$/;
 const password_match = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])\S*$/;
 
@@ -16,10 +14,10 @@ const password_message = [
 ];
 
 export class UserDto {
-  @ApiProperty({ example: generateMockId() })
+  @ApiProperty()
   _id: string;
 
-  @ApiProperty({ description: username_message.join(' and '), example: generateUsername() })
+  @ApiProperty({ description: username_message.join(' and '), example: 'User_123' })
   @Length(4, 20)
   @Matches(username_match, { message: username_message[1] })
   username: string;

@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-
 import { Document } from 'mongoose';
+
 import { generateCheck } from './helpers/generateCheck';
 
 export type UserDocument = User & Document;
 
 @Schema()
 export class User {
-  @Prop({ required: true, type: 'string' })
+  @Prop({ required: true, type: 'string', unique: true })
   username: string;
 
   @Prop({ required: true, type: 'string' })

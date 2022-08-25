@@ -6,7 +6,7 @@ import request from 'supertest';
 import { mockCredentials, mockPassword, mockUsername } from '../../user/test/mock/user.model.mock';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
-import { BasicStrategy } from '../strategies/basic.strategy';
+import { LocalStrategy } from '../strategies/local.strategy';
 import { mockAuthService } from './mock/auth.service.mock';
 
 describe('POST /login', () => {
@@ -19,7 +19,7 @@ describe('POST /login', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
-        BasicStrategy,
+        LocalStrategy,
         {
           provide: AuthService,
           useValue: mockAuthService,

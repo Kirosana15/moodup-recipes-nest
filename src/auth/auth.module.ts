@@ -6,7 +6,7 @@ import { UserModule } from '../user/user.module';
 import { EXPIRES_IN, TOKEN_KEY } from './auth.constants';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { BasicStrategy } from './strategies/basic.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { BasicStrategy } from './strategies/basic.strategy';
     PassportModule,
     JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: EXPIRES_IN } }),
   ],
-  providers: [AuthService, BasicStrategy],
+  providers: [AuthService, LocalStrategy],
   controllers: [AuthController],
   exports: [AuthService, PassportModule],
 })

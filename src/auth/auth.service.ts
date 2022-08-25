@@ -1,4 +1,4 @@
-import { ConflictException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserCredentialsDto, UserDto, UserInfoDto } from '../user/dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
@@ -8,10 +8,7 @@ import bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @Inject(forwardRef(() => UserService)) private userService: UserService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private jwtService: JwtService, private userService: UserService) {}
 
   async register(userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
     const { username, password } = userCredentialsDto;
@@ -55,7 +52,7 @@ export class AuthService {
 
   async refreshTokens(refreshToken: string): Promise<TokensDto> {
     try {
-      const { _id, check } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
+      const { _id, check } = <RefreshTokenDto>this.jwtService.verify(refreshToken.split(' ')[1]);
       const user = await this.userService.getById(_id);
       if (user?.check === check) {
         return this.getNewTokens(user);

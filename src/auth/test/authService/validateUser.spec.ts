@@ -28,7 +28,7 @@ describe('AuthService.validateUser()', () => {
     const user = await authService.validateUser(mockCredentials);
     expect(user).toBeDefined();
     expect(user?.username).toEqual(mockCredentials.username);
-    expect(user?.check).toBeDefined();
+    expect(user?.refreshToken).toBeDefined();
   });
 
   it(`should return null when password is not correct`, async () => {

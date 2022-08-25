@@ -2,7 +2,6 @@ import bcrypt from 'bcrypt';
 
 import { PaginatedQueryDto } from '../../../dto/queries.dto';
 import { UserCredentialsDto, UserDto } from '../../dto/user.dto';
-import { generateCheck } from '../../helpers/generateCheck';
 import { generateUserFromDb, generateUsers, mockPassword } from './user.model.mock';
 
 export const mockUserService = {
@@ -21,5 +20,5 @@ export const mockUserService = {
     return generateUserFromDb({ _id: id });
   }),
   refreshToken: jest.fn().mockReturnValue(generateUserFromDb()),
-  updateCheck: jest.fn().mockImplementation((user: UserDto) => ({ ...user, check: generateCheck() })),
+  updateToken: jest.fn().mockImplementation((user: UserDto) => ({ ...user, refreshToken: '' })),
 };

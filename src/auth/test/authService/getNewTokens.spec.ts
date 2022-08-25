@@ -2,12 +2,12 @@ import { UnauthorizedException } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { generateUserFromDb } from '../../user/test/mock/user.model.mock';
-import { mockUserService } from '../../user/test/mock/user.service.mock';
-import { UserService } from '../../user/user.service';
-import { TOKEN_KEY } from '../auth.constants';
-import { AuthService } from '../auth.service';
-import { AccessTokenDto, RefreshTokenDto } from '../dto/tokens.dto';
+import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
+import { mockUserService } from '../../../user/test/mock/user.service.mock';
+import { UserService } from '../../../user/user.service';
+import { TOKEN_KEY } from '../../auth.constants';
+import { AuthService } from '../../auth.service';
+import { AccessTokenDto, RefreshTokenDto } from '../../dto/tokens.dto';
 
 describe('AuthService.validateUser()', () => {
   let authService: AuthService;

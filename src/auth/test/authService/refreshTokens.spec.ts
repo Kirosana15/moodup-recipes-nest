@@ -1,13 +1,13 @@
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { generateUserFromDb, mockCheck, mockId } from '../../user/test/mock/user.model.mock';
-import { AccessTokenDto } from '../dto/tokens.dto';
-import { AuthService } from '../auth.service';
-import { TOKEN_KEY } from '../auth.constants';
+import { generateUserFromDb, mockCheck, mockId } from '../../../user/test/mock/user.model.mock';
+import { AccessTokenDto } from '../../dto/tokens.dto';
+import { AuthService } from '../../auth.service';
+import { TOKEN_KEY } from '../../auth.constants';
 import { UnauthorizedException } from '@nestjs/common';
-import { UserService } from '../../user/user.service';
-import { generateCheck } from '../../user/helpers/generateCheck';
-import { mockUserService } from '../../user/test/mock/user.service.mock';
+import { UserService } from '../../../user/user.service';
+import { generateCheck } from '../../../user/helpers/generateCheck';
+import { mockUserService } from '../../../user/test/mock/user.service.mock';
 
 describe('AuthService.refreshTokens()', () => {
   let authService: AuthService;

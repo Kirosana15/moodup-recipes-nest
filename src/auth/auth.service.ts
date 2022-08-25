@@ -1,6 +1,6 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { ConflictException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserCredentialsDto, UserDto, UserInfoDto } from '../user/dto/user.dto';
+import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
 import { UserService } from '../user/user.service';
 
@@ -8,7 +8,10 @@ import bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService, private jwtService: JwtService) {}
+  constructor(
+    @Inject(forwardRef(() => UserService)) private userService: UserService,
+    private jwtService: JwtService,
+  ) {}
 
   async register(userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
     const { username, password } = userCredentialsDto;
@@ -61,6 +64,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Token ');
     }
     throw new UnauthorizedException('Invalid Token ');
+  }
+
+  async verifyBearer(id: string): Promise<UserInfoDto | null> {
+    const user = this.userService.getById(id);
+    if (user) {
+      return user;
+    }
+    return null;
   }
 
   async getNewTokens(user: UserDto): Promise<TokensDto> {

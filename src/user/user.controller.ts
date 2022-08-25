@@ -1,4 +1,4 @@
-import { Controller, ForbiddenException, Get, Logger, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, ForbiddenException, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { BearerAuthGuard } from '../auth/strategies/bearer.strategy';
 import { PaginatedQueryDto } from '../dto/queries.dto';
@@ -13,7 +13,6 @@ export class UserController {
   @Get('/all')
   @UseGuards(BearerAuthGuard)
   getAllUsers(@Req() req: any, @Query() paginatedQueryDto?: PaginatedQueryDto): Promise<UserInfoDto[]> {
-    Logger.log(req.user);
     if (req.user.isAdmin) {
       return this.userService.getAll(paginatedQueryDto);
     }

@@ -34,11 +34,11 @@ export class UserDto {
   isAdmin: boolean;
 
   @ApiProperty()
-  check: string;
+  refreshToken: string;
 
   @ApiProperty({ example: Date.now() })
   createdAt: number;
 }
 
-export class UserInfoDto extends OmitType(UserDto, ['password', 'check']) {}
+export class UserInfoDto extends OmitType(UserDto, ['password', 'refreshToken']) {}
 export class UserCredentialsDto extends PickType(UserDto, ['username', 'password']) {}

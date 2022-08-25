@@ -16,7 +16,7 @@ export class AuthService {
       const hashedPassword = await this.hashPassword(password);
       const {
         password: _password,
-        check: _check,
+        refreshToken: _refreshToken,
         ...user
       } = await this.userService.create({ username, password: hashedPassword });
       return user;
@@ -50,17 +50,18 @@ export class AuthService {
     return bcrypt.compare(password, hash);
   }
 
-  async refreshTokens(refreshToken: string): Promise<TokensDto> {
+  async refreshTokens(header: string): Promise<TokensDto> {
     try {
-      const { _id, check } = <RefreshTokenDto>this.jwtService.verify(refreshToken.split(' ')[1]);
+      const refreshToken = header.split(' ')[0] === 'Bearer' ? header.split(' ')[1] : header;
+      const { _id } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
       const user = await this.userService.getById(_id);
-      if (user?.check === check) {
+      if (user?.refreshToken === refreshToken) {
         return this.getNewTokens(user);
       }
+      throw 'Invalid token';
     } catch (err) {
       throw new UnauthorizedException('Invalid Token ');
     }
-    throw new UnauthorizedException('Invalid Token ');
   }
 
   async verifyBearer(id: string): Promise<UserInfoDto | null> {
@@ -72,13 +73,13 @@ export class AuthService {
   }
 
   async getNewTokens(user: UserDto): Promise<TokensDto> {
-    const updatedUser = await this.userService.updateCheck(user);
-    if (!updatedUser) {
+    if (!user) {
       throw new UnauthorizedException();
     }
-    const { password: _password, check: _check, ...userData } = updatedUser;
+    const { password: _password, refreshToken: _refreshToken, ...userData } = user;
     const accessToken = this.jwtService.sign(userData);
-    const refreshToken = this.jwtService.sign({ _id: updatedUser._id, check: updatedUser.check });
+    const refreshToken = this.jwtService.sign({ _id: user._id });
+    await this.userService.updateToken(user, refreshToken);
     return { accessToken, refreshToken };
   }
 }

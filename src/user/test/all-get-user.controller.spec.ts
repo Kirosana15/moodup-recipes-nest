@@ -3,7 +3,7 @@ import { NestApplication } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { BearerGuard } from '../../auth/strategies/bearer.strategy';
+import { BearerAuthGuard } from '../../auth/strategies/bearer.strategy';
 import { UserInfoDto } from '../dto/user.dto';
 import { UserController } from '../user.controller';
 import { UserService } from '../user.service';
@@ -27,7 +27,7 @@ describe('POST /login', () => {
         },
       ],
     })
-      .overrideGuard(BearerGuard)
+      .overrideGuard(BearerAuthGuard)
       .useValue({
         canActivate: (context: ExecutionContext) => {
           const req = context.switchToHttp().getRequest();

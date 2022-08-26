@@ -3,9 +3,9 @@ import { NestApplication } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { AuthController } from '../auth.controller';
-import { AuthService } from '../auth.service';
-import { mockAuthService } from './mock/auth.service.mock';
+import { AuthController } from '../../auth.controller';
+import { AuthService } from '../../auth.service';
+import { mockAuthService } from '../mock/auth.service.mock';
 
 describe('AuthController', () => {
   let authController: AuthController;

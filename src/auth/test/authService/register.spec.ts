@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { mockCredentials, mockPassword } from '../../user/test/mock/user.model.mock';
-
-import { AuthService } from '../auth.service';
 import { ConflictException } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { TOKEN_KEY } from '../auth.constants';
-import { UserService } from '../../user/user.service';
-import { mockUserService } from '../../user/test/mock/user.service.mock';
+import { Test, TestingModule } from '@nestjs/testing';
+
+import { mockCredentials, mockPassword } from '../../../user/test/mock/user.model.mock';
+import { mockUserService } from '../../../user/test/mock/user.service.mock';
+import { UserService } from '../../../user/user.service';
+import { TOKEN_KEY } from '../../auth.constants';
+import { AuthService } from '../../auth.service';
 
 describe('AuthService.register()', () => {
   let service: AuthService;

@@ -1,12 +1,12 @@
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { mockCredentials, mockPassword, mockUsername } from '../../user/test/mock/user.model.mock';
-
-import { AuthController } from '../auth.controller';
-import { AuthService } from '../auth.service';
 import { NestApplication } from '@nestjs/core';
-import { mockAuthService } from './mock/auth.service.mock';
+import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
+
+import { mockCredentials, mockPassword, mockUsername } from '../../../user/test/mock/user.model.mock';
+import { AuthController } from '../../auth.controller';
+import { AuthService } from '../../auth.service';
+import { mockAuthService } from '../mock/auth.service.mock';
 
 describe('POST auth/register', () => {
   let service: AuthService;

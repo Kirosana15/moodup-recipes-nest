@@ -4,6 +4,7 @@ import { Document } from 'mongoose';
 import { RoleTypes } from '../auth/enums/roles';
 import { generateCheck } from './helpers/generateCheck';
 
+
 export type UserDocument = User & Document;
 
 @Schema()
@@ -17,8 +18,8 @@ export class User {
   @Prop({ default: [RoleTypes.User] })
   roles: RoleTypes[];
 
-  @Prop({ default: generateCheck() })
-  check: string;
+  @Prop({ default: '', type: 'string' })
+  refreshToken: string;
 
   @Prop({ default: Date.now() })
   createdAt: number;

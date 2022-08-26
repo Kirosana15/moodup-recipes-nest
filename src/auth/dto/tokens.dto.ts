@@ -4,7 +4,7 @@ import { RoleTypes } from '../enums/roles';
 
 export class RefreshTokenDto {
   _id: string;
-  check: string;
+  refreshToken: string;
 }
 
 export class AccessTokenDto {

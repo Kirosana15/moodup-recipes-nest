@@ -1,11 +1,11 @@
 import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { mockCredentials } from '../../user/test/mock/user.model.mock';
-import { mockUserService } from '../../user/test/mock/user.service.mock';
-import { UserService } from '../../user/user.service';
-import { TOKEN_KEY } from '../auth.constants';
-import { AuthService } from '../auth.service';
+import { mockCredentials } from '../../../user/test/mock/user.model.mock';
+import { mockUserService } from '../../../user/test/mock/user.service.mock';
+import { UserService } from '../../../user/user.service';
+import { TOKEN_KEY } from '../../auth.constants';
+import { AuthService } from '../../auth.service';
 
 describe('AuthService.validateUser()', () => {
   let authService: AuthService;
@@ -28,7 +28,7 @@ describe('AuthService.validateUser()', () => {
     const user = await authService.validateUser(mockCredentials);
     expect(user).toBeDefined();
     expect(user?.username).toEqual(mockCredentials.username);
-    expect(user?.check).toBeDefined();
+    expect(user?.refreshToken).toBeDefined();
   });
 
   it(`should return null when password is not correct`, async () => {

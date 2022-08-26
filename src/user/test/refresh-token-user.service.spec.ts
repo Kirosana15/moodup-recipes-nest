@@ -1,10 +1,10 @@
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { User, UserSchema } from '../user.schema';
+import { UserService } from '../user.service';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
 import { mockCredentials, mockId } from './mock/user.model.mock';
-
-import { MongooseModule } from '@nestjs/mongoose';
-import { UserService } from '../user.service';
 
 describe('UserService.refreshToken()', () => {
   let service: UserService;
@@ -27,14 +27,14 @@ describe('UserService.refreshToken()', () => {
   });
 
   it('should return a new refresh token', async () => {
-    const newRefresh = await service.refreshToken(mockId);
+    const newRefresh = await service.refreshToken(mockId, '');
     expect(newRefresh).toBeDefined();
   });
 
-  it('should change users check value in database', async () => {
+  it('should change users refreshToken in database', async () => {
     const user = await service.create(mockCredentials);
-    await service.refreshToken(user._id);
+    await service.refreshToken(user._id, 'token');
     const changedUser = await service.getById(user._id);
-    expect(user.check).not.toBe(changedUser?.check);
+    expect(user.refreshToken).not.toBe(changedUser?.refreshToken);
   });
 });

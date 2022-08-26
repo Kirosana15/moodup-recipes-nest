@@ -4,7 +4,7 @@ import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { TokensDto } from './dto/tokens.dto';
-import { BasicAuthGuard } from './strategies/basic.strategy';
+import { LocalAuthGuard } from './strategies/local.strategy';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -15,7 +15,7 @@ export class AuthController {
   async register(@Body() userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
     return this.authService.register(userCredentialsDto);
   }
-  @UseGuards(BasicAuthGuard)
+  @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
   async login(@Req() req: any): Promise<TokensDto> {

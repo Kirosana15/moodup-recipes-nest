@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/guards/roles.guard';
+import { BearerStrategy } from './auth/strategies/bearer.strategy';
 import { RecipeModule } from './recipe/recipe.module';
 import { UserModule } from './user/user.module';
 
@@ -23,6 +24,6 @@ import { UserModule } from './user/user.module';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-  ],
+  [BearerStrategy],
 })
 export class AppModule {}

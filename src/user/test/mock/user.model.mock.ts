@@ -2,7 +2,6 @@ import { faker } from '@faker-js/faker';
 
 import { RoleTypes } from '../../../auth/enums/roles';
 import { UserCredentialsDto, UserDto, UserInfoDto } from '../../dto/user.dto';
-import { generateCheck } from '../../helpers/generateCheck';
 
 export const generateUsername = () => `${faker.name.firstName()}_${faker.name.lastName()}`.slice(0, 20);
 export const generateMockId = faker.database.mongodbObjectId;
@@ -12,7 +11,7 @@ export const mockUsername = generateUsername();
 export const mockPassword = generatePassword();
 export const mockId = generateMockId();
 export const mockCredentials: UserCredentialsDto = { username: mockUsername, password: mockPassword };
-export const mockCheck = generateCheck();
+export const mockRefreshToken = faker.datatype.string();
 export type UserPayload = Partial<UserDto>;
 
 export const generateMockToken = () => {
@@ -31,7 +30,8 @@ export const generateUser = (user?: UserPayload): UserInfoDto => {
 export const generateUserFromDb = (user?: Partial<UserDto>): UserDto => ({
   ...generateUser(user),
   password: user?.password || generatePassword(),
-  check: user?.check || faker.datatype.string(20),
+  isAdmin: user?.isAdmin || false,
+  refreshToken: user?.refreshToken || faker.datatype.string(20),
 });
 
 export const generateUsers = (count: number): UserPayload[] => {

@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-import { Roles } from '../../../auth/enums/roles';
+import { RoleTypes } from '../../../auth/enums/roles';
 import { UserCredentialsDto, UserDto, UserInfoDto } from '../../dto/user.dto';
 import { generateCheck } from '../../helpers/generateCheck';
 
@@ -23,7 +23,7 @@ export const generateUser = (user?: UserPayload): UserInfoDto => {
   return {
     _id: user?._id || generateMockId(),
     username: user?.username || generateUsername(),
-    roles: user?.roles || [Roles.User],
+    roles: user?.roles || [RoleTypes.User],
     createdAt: user?.createdAt || faker.date.past().getTime(),
   };
 };

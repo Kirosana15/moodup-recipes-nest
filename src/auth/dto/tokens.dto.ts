@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { Roles } from '../enums/roles';
+
 export class RefreshTokenDto {
   _id: string;
   check: string;
@@ -8,7 +10,7 @@ export class RefreshTokenDto {
 export class AccessTokenDto {
   _id: string;
   username: string;
-  isAdmin: boolean;
+  roles: Roles[];
   createdAt: number;
 }
 

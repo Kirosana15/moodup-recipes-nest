@@ -1,25 +1,26 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+import { Roles } from '../auth/enums/roles';
 import { generateCheck } from './helpers/generateCheck';
 
 export type UserDocument = User & Document;
 
 @Schema()
 export class User {
-  @Prop({ required: true, type: 'string', unique: true })
+  @Prop({ required: true })
   username: string;
 
-  @Prop({ required: true, type: 'string' })
+  @Prop({ required: true })
   password: string;
 
-  @Prop({ default: false, type: 'boolean' })
-  isAdmin: boolean;
+  @Prop({ default: [Roles.User] })
+  roles: Roles[];
 
-  @Prop({ default: generateCheck(), type: 'string' })
+  @Prop({ default: generateCheck() })
   check: string;
 
-  @Prop({ default: Date.now(), type: 'number' })
+  @Prop({ default: Date.now() })
   createdAt: number;
 }
 

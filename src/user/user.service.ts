@@ -36,7 +36,7 @@ export class UserService {
     const page = paginatedQueryDto?.page || 1;
     const limit = paginatedQueryDto?.limit || 10;
     return this.userModel
-      .find({}, '_id username isAdmin createdAt')
+      .find({}, '_id username roles createdAt')
       .skip((page - 1) * limit)
       .limit(limit)
       .sort({ _id: -1 })

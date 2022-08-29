@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Observable } from 'rxjs';
 
 import { UserInfoDto } from '../../user/dto/user.dto';
 import { TOKEN_KEY } from '../auth.constants';
@@ -20,4 +22,16 @@ export class BearerStrategy extends PassportStrategy(Strategy) {
   }
 }
 
-export class BearerAuthGuard extends AuthGuard('jwt') {}
+@Injectable()
+export class BearerAuthGuard extends AuthGuard('jwt') {
+  constructor(private reflector: Reflector) {
+    super();
+  }
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+    const noBearer = this.reflector.get('no-bearer', context.getHandler());
+    if (!noBearer) {
+      return super.canActivate(context);
+    }
+    return true;
+  }
+}

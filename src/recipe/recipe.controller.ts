@@ -19,6 +19,7 @@ import { RecipeService } from './recipe.service';
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
 
+  @UseGuards(BearerAuthGuard)
   @Get(':_id')
   async getRecipeById(@Param() param: RecipeDto): Promise<RecipeDto> {
     const recipe = await this.recipeService.getById(param._id);

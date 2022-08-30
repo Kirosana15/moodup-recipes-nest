@@ -5,8 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
+import { BearerAuthGuard } from './auth/guards/bearer.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
-import { BearerAuthGuard } from './auth/strategies/bearer.strategy';
 import { RecipeModule } from './recipe/recipe.module';
 import { UserModule } from './user/user.module';
 

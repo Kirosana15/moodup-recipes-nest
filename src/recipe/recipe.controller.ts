@@ -19,6 +19,15 @@ import { RecipeService } from './recipe.service';
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
 
+  @Get(':_id')
+  async getRecipeById(@Param() param: RecipeDto): Promise<RecipeDto> {
+    const recipe = await this.recipeService.getById(param._id);
+    if (recipe) {
+      return recipe;
+    }
+    throw new NotFoundException('Recipe does not exist');
+  }
+
   @UseGuards(BearerAuthGuard)
   @Delete(':_id')
   async deleteRecipe(@Req() req: any, @Param() params: RecipeIdDto): Promise<RecipeDto | null> {

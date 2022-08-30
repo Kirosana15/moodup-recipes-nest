@@ -1,4 +1,5 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import { PaginatedQueryDto } from '../dto/queries.dto';
 import { RecipeDto } from './dto/recipe.dto';
 
 import { RecipeService } from './recipe.service';
@@ -8,7 +9,10 @@ export class RecipeController {
   constructor(private recipeService: RecipeService) {}
 
   @Get('/search/:query')
-  searchRecipeTitles(@Param('query') query: string): Promise<RecipeDto[]> {
-    return this.recipeService.searchInTitle(query);
+  searchRecipeTitles(
+    @Param('query') query: string,
+    @Query() paginatedQueryDto: PaginatedQueryDto,
+  ): Promise<RecipeDto[]> {
+    return this.recipeService.searchInTitle(query, paginatedQueryDto);
   }
 }

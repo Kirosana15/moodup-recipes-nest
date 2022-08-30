@@ -45,7 +45,7 @@ describe('RecipeService.searchInTitle()', () => {
       expect(await recipeService.searchInTitle(recipeMock().title)).toHaveLength(0);
     });
 
-    it('no title provided', async () => {
+    it('no title was provided', async () => {
       const title = '';
       expect(await recipeService.searchInTitle(title)).toHaveLength(0);
     });

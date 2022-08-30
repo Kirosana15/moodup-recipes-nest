@@ -24,13 +24,13 @@ export class RecipeController {
   async deleteRecipe(@Req() req: any, @Param() params: RecipeIdDto): Promise<RecipeDto | null> {
     const user = req.user;
     const recipe = await this.recipeService.getById(params._id);
-    if (recipe) {
-      if (user._id == recipe._id || user.isAdmin) {
-        return this.recipeService.delete(params._id);
-      }
+    if (!recipe) {
+      throw new NotFoundException('Recipe does not exist');
+    }
+    if (user._id !== recipe.ownerId && !user.isAdmin) {
       throw new UnauthorizedException();
     }
-    throw new NotFoundException('Recipe does not exist');
+    return this.recipeService.delete(params._id);
   }
 
   @Get('/search/:query')

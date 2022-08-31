@@ -9,7 +9,7 @@ import { Recipe, RecipeDocument } from './recipe.schema';
 export class RecipeService {
   constructor(@InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>) {}
 
-  searchInTitle(query: string, paginatedQueryDto: PaginatedQueryDto): Promise<RecipeDto[]> {
+  searchInTitle(query: string, paginatedQueryDto?: PaginatedQueryDto): Promise<RecipeDto[]> {
     const page = paginatedQueryDto?.page || 1;
     const limit = paginatedQueryDto?.limit || 10;
     return this.recipeModel

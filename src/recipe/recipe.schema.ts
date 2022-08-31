@@ -15,7 +15,7 @@ export class Recipe {
   imageUrl: string;
 
   @Prop({ required: true, type: 'string' })
-  body: string;
+  content: string;
 
   @Prop({ default: Date.now(), type: 'number' })
   createdAt: number;

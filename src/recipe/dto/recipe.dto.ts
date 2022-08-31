@@ -18,7 +18,7 @@ export class RecipeDto {
 
   @ApiProperty()
   @Length(20, 1000)
-  body: string;
+  content: string;
 
   @ApiProperty()
   @Optional()

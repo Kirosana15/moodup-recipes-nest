@@ -4,6 +4,9 @@ import { IsDate, IsMongoId, IsUrl, Length } from 'class-validator';
 
 export class RecipeDto {
   @ApiProperty()
+  _id: string;
+
+  @ApiProperty()
   @IsMongoId()
   ownerId: string;
 

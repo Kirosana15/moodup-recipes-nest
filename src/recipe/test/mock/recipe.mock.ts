@@ -1,14 +1,15 @@
 import { faker } from '@faker-js/faker';
 
-import { generateMockId } from '../../../user/test/mock/user.model.mock';
 import { RecipeDto } from '../../dto/recipe.dto';
 
 export const mockTitle = () => faker.word.adverb() + faker.word.adjective() + faker.word.noun();
-export const mockImageUrl = () => faker.image.food();
+export const mockImageUrl = faker.image.food;
 export const mockContent = () => faker.lorem.paragraph(4);
+export const mockId = faker.database.mongodbObjectId;
 
 export const recipeMock = (recipe?: Partial<RecipeDto>): RecipeDto => ({
-  ownerId: recipe?.ownerId || generateMockId(),
+  _id: recipe?._id || mockId(),
+  ownerId: recipe?.ownerId || mockId(),
   title: recipe?.title || mockTitle(),
   imageUrl: recipe?.imageUrl || mockImageUrl(),
   content: recipe?.content || mockContent(),

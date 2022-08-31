@@ -1,3 +1,4 @@
+import { RecipeDto } from '../../dto/recipe.dto';
 import { generateRecipes, recipeMock } from './recipe.mock';
 
 export const mockRecipeService = {

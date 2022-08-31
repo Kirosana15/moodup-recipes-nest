@@ -2,7 +2,7 @@ import { ExecutionContext, HttpStatus, INestApplication, ValidationPipe } from '
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { BearerAuthGuard } from '../../../auth/strategies/bearer.strategy';
+import { OwnerGuard } from '../../../auth/guards/owner.guard';
 import { rootMongooseTestModule } from '../../../mock/db.mock';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 import { RecipeModule } from '../../recipe.module';
@@ -14,7 +14,6 @@ describe('recipe', () => {
   let app: INestApplication;
   const recipeService = mockRecipeService;
   const mockUser = generateUserFromDb();
-  let bearerGuardMock: BearerAuthGuard;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -22,17 +21,17 @@ describe('recipe', () => {
     })
       .overrideProvider(RecipeService)
       .useValue(recipeService)
-      .overrideGuard(BearerAuthGuard)
+      .overrideGuard(OwnerGuard)
       .useValue({
         canActivate(context: ExecutionContext) {
           const req = context.switchToHttp().getRequest();
           req.user = mockUser;
-          return true;
+          const { _id: id } = req.params;
+          return mockUser._id === id;
         },
       })
       .compile();
 
-    bearerGuardMock = module.get(BearerAuthGuard);
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
     await app.init();
@@ -43,7 +42,7 @@ describe('recipe', () => {
   });
   describe('/PATCH :id', () => {
     it('should return updated recipe', async () => {
-      const idMock = mockId();
+      const idMock = mockUser._id;
       const titleMock = mockTitle();
       const res = await request(app.getHttpServer())
         .patch(`/recipe/${idMock}`)
@@ -55,16 +54,13 @@ describe('recipe', () => {
     });
 
     it(`should return ${HttpStatus.NOT_FOUND} when recipe does not exist`, async () => {
-      const idMock = mockId();
-      recipeService.getById.mockReturnValueOnce(null);
+      const idMock = mockUser._id;
+      recipeService.update.mockReturnValueOnce(null);
       await request(app.getHttpServer()).patch(`/recipe/${idMock}`).expect(HttpStatus.NOT_FOUND);
     });
 
     it(`should return ${HttpStatus.FORBIDDEN} when user is not authorized to update recipe`, async () => {
       const idMock = mockId();
-      bearerGuardMock.canActivate = () => {
-        return false;
-      };
       await request(app.getHttpServer()).patch(`/recipe/${idMock}`).expect(HttpStatus.FORBIDDEN);
     });
   });

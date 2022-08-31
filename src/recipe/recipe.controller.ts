@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Put, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
 import { OwnerGuard } from '../auth/guards/owner.guard';
 import { PaginatedQueryDto } from '../dto/queries.dto';
 import { RecipeDto, RecipeIdDto } from './dto/recipe.dto';
@@ -36,22 +36,18 @@ export class RecipeController {
     return this.recipeService.searchInTitle(query, paginatedQueryDto);
   }
 
-  @UseGuards(BearerAuthGuard)
-  @Put(':_id')
+  @UseGuards(OwnerGuard)
+  @Patch(':_id')
   async updateRecipe(
     @Req() req: any,
     @Param() param: RecipeIdDto,
     @Body() recipe: Partial<RecipeDto>,
   ): Promise<RecipeDto | null> {
     const id = param._id;
-    const user = req.user;
-    const oldRecipe = await this.recipeService.getById(id);
-    if (!oldRecipe) {
-      throw new NotFoundException();
+    const updatedRecipe = await this.recipeService.update(id, recipe);
+    if (!updatedRecipe) {
+      throw new NotFoundException('Recipe does not exist');
     }
-    if (user._id !== recipe._id && user.isAdmin) {
-      throw new UnauthorizedException();
-    }
-    return this.recipeService.update(id, recipe);
+    return updatedRecipe;
   }
 }

@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  NotFoundException,
-  Param,
-  Query,
-  Req,
-  UnauthorizedException,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Delete, Get, NotFoundException, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { OwnerGuard } from '../auth/guards/owner.guard';
 import { PaginatedQueryDto } from '../dto/queries.dto';
 import { RecipeDto, RecipeIdDto } from './dto/recipe.dto';
@@ -19,7 +9,6 @@ import { RecipeService } from './recipe.service';
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
 
-  @UseGuards(OwnerGuard)
   @Get(':_id')
   async getRecipeById(@Param() param: RecipeDto): Promise<RecipeDto> {
     const recipe = await this.recipeService.getById(param._id);
@@ -32,15 +21,11 @@ export class RecipeController {
   @UseGuards(OwnerGuard)
   @Delete(':_id')
   async deleteRecipe(@Req() req: any, @Param() params: RecipeIdDto): Promise<RecipeDto | null> {
-    const user = req.user;
-    const recipe = await this.recipeService.getById(params._id);
+    const recipe = await this.recipeService.delete(params._id);
     if (!recipe) {
       throw new NotFoundException('Recipe does not exist');
     }
-    if (user._id !== recipe.ownerId && !user.isAdmin) {
-      throw new UnauthorizedException();
-    }
-    return this.recipeService.delete(params._id);
+    return recipe;
   }
 
   @Get('/search/:query')

@@ -2,7 +2,7 @@ import { ExecutionContext, HttpStatus, INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { BearerAuthGuard } from '../../../auth/strategies/bearer.strategy';
+import { BearerAuthGuard } from '../../../auth/guards/bearer.guard';
 import { rootMongooseTestModule } from '../../../mock/db.mock';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 import { RecipeModule } from '../../recipe.module';

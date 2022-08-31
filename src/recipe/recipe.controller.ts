@@ -36,12 +36,22 @@ export class RecipeController {
     return this.recipeService.searchInTitle(query, paginatedQueryDto);
   }
 
+  @UseGuards(BearerAuthGuard)
   @Put(':_id')
-  async updateRecipe(@Param() param: RecipeDto, @Body() recipe: Partial<RecipeDto>): Promise<RecipeDto> {
-    const updatedRecipe = await this.recipeService.update(param._id, recipe);
-    if (updatedRecipe) {
-      return updatedRecipe;
+  async updateRecipe(
+    @Req() req: any,
+    @Param() param: RecipeIdDto,
+    @Body() recipe: Partial<RecipeDto>,
+  ): Promise<RecipeDto | null> {
+    const id = param._id;
+    const user = req.user;
+    const oldRecipe = await this.recipeService.getById(id);
+    if (!oldRecipe) {
+      throw new NotFoundException();
     }
-    throw new NotFoundException();
+    if (user._id !== recipe._id && user.isAdmin) {
+      throw new UnauthorizedException();
+    }
+    return this.recipeService.update(id, recipe);
   }
 }

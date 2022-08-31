@@ -9,6 +9,10 @@ import { Recipe, RecipeDocument } from './recipe.schema';
 export class RecipeService {
   constructor(@InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>) {}
 
+  getById(id: string): Promise<RecipeDto | null> {
+    return this.recipeModel.findById(id).lean().exec();
+  }
+
   delete(id: string): Promise<RecipeDto | null> {
     return this.recipeModel.findByIdAndDelete(id).lean().exec();
   }

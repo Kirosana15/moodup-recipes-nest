@@ -25,7 +25,7 @@ export class RecipeController {
     const user = req.user;
     const recipe = await this.recipeService.getById(params._id);
     if (recipe) {
-      if (user._id == recipe.id || user.isAdmin) {
+      if (user._id == recipe._id || user.isAdmin) {
         return this.recipeService.delete(params._id);
       }
       throw new UnauthorizedException();

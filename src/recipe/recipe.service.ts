@@ -31,4 +31,8 @@ export class RecipeService {
       .lean()
       .exec();
   }
+
+  update(id: string, recipe: Partial<RecipeDto>): Promise<RecipeDto | null> {
+    return this.recipeModel.findByIdAndUpdate(id, recipe, { new: true }).lean().exec();
+  }
 }

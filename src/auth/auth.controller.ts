@@ -5,16 +5,20 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { TokensDto } from './dto/tokens.dto';
 import { LocalAuthGuard } from './strategies/local.strategy';
+import { NoBearerAuth } from '../decorators/noBearer';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @NoBearerAuth()
   @Post('register')
   async register(@Body() userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
     return this.authService.register(userCredentialsDto);
   }
+
+  @NoBearerAuth()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)

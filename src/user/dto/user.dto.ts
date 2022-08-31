@@ -1,6 +1,8 @@
 import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { Length, Matches } from 'class-validator';
 
+import { RoleTypes } from '../../auth/enums/roles';
+
 const username_match = /^\w*$/;
 const password_match = /^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])\S*$/;
 
@@ -30,8 +32,8 @@ export class UserDto {
   @Matches(password_match, { message: password_message[1] })
   password: string;
 
-  @ApiProperty({ example: false })
-  isAdmin: boolean;
+  @ApiProperty({ type: 'enum', enum: RoleTypes, isArray: true, example: [RoleTypes.User] })
+  roles: RoleTypes[];
 
   @ApiProperty()
   refreshToken: string;

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AuthGuard, PassportStrategy } from '@nestjs/passport';
+import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { UserInfoDto } from '../../user/dto/user.dto';
@@ -19,5 +19,3 @@ export class BearerStrategy extends PassportStrategy(Strategy) {
     return payload;
   }
 }
-
-export class BearerAuthGuard extends AuthGuard('jwt') {}

@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 
+import { RoleTypes } from '../../../auth/enums/roles';
 import { UserCredentialsDto, UserDto, UserInfoDto } from '../../dto/user.dto';
 
 export const generateUsername = () => `${faker.name.firstName()}_${faker.name.lastName()}`.slice(0, 20);
@@ -21,18 +22,16 @@ export const generateUser = (user?: UserPayload): UserInfoDto => {
   return {
     _id: user?._id || generateMockId(),
     username: user?.username || generateUsername(),
-    isAdmin: user?.isAdmin || false,
+    roles: user?.roles || [RoleTypes.User],
     createdAt: user?.createdAt || faker.date.past().getTime(),
   };
 };
 
 export const generateUserFromDb = (user?: Partial<UserDto>): UserDto => ({
-  _id: user?._id || generateMockId(),
-  username: user?.username || generateUsername(),
+  ...generateUser(user),
   password: user?.password || generatePassword(),
   isAdmin: user?.isAdmin || false,
   refreshToken: user?.refreshToken || faker.datatype.string(20),
-  createdAt: user?.createdAt || faker.date.past().getTime(),
 });
 
 export const generateUsers = (count: number): UserPayload[] => {

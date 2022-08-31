@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, NotFoundException, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { OwnerGuard } from '../auth/guards/owner.guard';
 import { PaginatedQueryDto } from '../dto/queries.dto';
 import { RecipeDto, RecipeIdDto } from './dto/recipe.dto';
@@ -34,5 +34,14 @@ export class RecipeController {
     @Query() paginatedQueryDto: PaginatedQueryDto,
   ): Promise<RecipeDto[]> {
     return this.recipeService.searchInTitle(query, paginatedQueryDto);
+  }
+
+  @Put(':_id')
+  async updateRecipe(@Param() param: RecipeDto, @Body() recipe: Partial<RecipeDto>): Promise<RecipeDto> {
+    const updatedRecipe = await this.recipeService.update(param._id, recipe);
+    if (updatedRecipe) {
+      return updatedRecipe;
+    }
+    throw new NotFoundException();
   }
 }

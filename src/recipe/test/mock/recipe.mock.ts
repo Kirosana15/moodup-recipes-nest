@@ -1,13 +1,13 @@
 import { faker } from '@faker-js/faker';
 
-import { RecipeDto } from '../../dto/recipe.dto';
+import { RecipeDto as RecipeFullDto } from '../../dto/recipe.dto';
 
 export const mockTitle = () => faker.word.adverb() + faker.word.adjective() + faker.word.noun();
 export const mockImageUrl = faker.image.food;
 export const mockContent = () => faker.lorem.paragraph(4);
 export const mockId = faker.database.mongodbObjectId;
 
-export const recipeMock = (recipe?: Partial<RecipeDto>): RecipeDto => ({
+export const recipeMock = (recipe?: Partial<RecipeFullDto>): RecipeFullDto => ({
   _id: recipe?._id || mockId(),
   ownerId: recipe?.ownerId || mockId(),
   title: recipe?.title || mockTitle(),
@@ -16,6 +16,6 @@ export const recipeMock = (recipe?: Partial<RecipeDto>): RecipeDto => ({
   createdAt: recipe?.createdAt || faker.date.past().getTime(),
 });
 
-export const generateRecipes = (count: number, recipe?: Partial<RecipeDto>): RecipeDto[] => {
+export const generateRecipes = (count: number, recipe?: Partial<RecipeFullDto>): RecipeFullDto[] => {
   return Array.from(new Array(count), () => recipeMock(recipe));
 };

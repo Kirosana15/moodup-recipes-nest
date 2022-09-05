@@ -15,6 +15,15 @@ export class UserService {
     return user.toObject();
   }
 
+  async delete(id: string): Promise<UserInfoDto | null> {
+    const deletedUser = await this.userModel.findByIdAndDelete(id).lean().exec();
+    if (!deletedUser) {
+      return null;
+    }
+    const { password: _password, refreshToken: _refreshToken, ...user } = deletedUser;
+    return user;
+  }
+
   async getByUsername(username: string): Promise<UserDto | null> {
     return this.userModel.findOne({ username }).lean().exec();
   }

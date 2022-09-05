@@ -30,7 +30,6 @@ export const generateUser = (user?: UserPayload): UserInfoDto => {
 export const generateUserFromDb = (user?: Partial<UserDto>): UserDto => ({
   ...generateUser(user),
   password: user?.password || generatePassword(),
-  roles: user?.roles || [RoleTypes.User],
   refreshToken: user?.refreshToken || faker.datatype.string(20),
 });
 

@@ -1,9 +1,9 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { closeConnections, rootMongooseTestModule } from '../../mock/db.mock';
 import { User, UserSchema } from '../user.schema';
 import { UserService } from '../user.service';
-import { closeConnections, rootMongooseTestModule } from './mock/db.mock';
 import { mockCredentials, mockId } from './mock/user.model.mock';
 
 describe('UserService.refreshToken()', () => {

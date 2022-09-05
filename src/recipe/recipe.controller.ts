@@ -1,13 +1,21 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { OwnerGuard } from '../auth/guards/owner.guard';
+import { AuthorizedUser } from '../decorators/authorizedUser';
 import { PaginatedQueryDto } from '../dto/queries.dto';
-import { RecipeDto, RecipeIdDto } from './dto/recipe.dto';
+import { UserInfoDto } from '../user/dto/user.dto';
+import { RecipeDto, RecipeContentDto, RecipeIdDto } from './dto/recipe.dto';
 
 import { RecipeService } from './recipe.service';
 
 @Controller('recipe')
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
+
+  @Post('/')
+  createRecipe(@Body() recipeContents: RecipeContentDto, @AuthorizedUser() user: UserInfoDto): Promise<RecipeDto> {
+    const recipe = { ...recipeContents, ownerId: user._id };
+    return this.recipeService.create(recipe);
+  }
 
   @Get(':_id')
   async getRecipeById(@Param() param: RecipeDto): Promise<RecipeDto> {
@@ -20,7 +28,7 @@ export class RecipeController {
 
   @UseGuards(OwnerGuard)
   @Delete(':_id')
-  async deleteRecipe(@Req() req: any, @Param() params: RecipeIdDto): Promise<RecipeDto | null> {
+  async deleteRecipe(@Param() params: RecipeIdDto): Promise<RecipeDto | null> {
     const recipe = await this.recipeService.delete(params._id);
     if (!recipe) {
       throw new NotFoundException('Recipe does not exist');
@@ -38,11 +46,7 @@ export class RecipeController {
 
   @UseGuards(OwnerGuard)
   @Patch(':_id')
-  async updateRecipe(
-    @Req() req: any,
-    @Param() param: RecipeIdDto,
-    @Body() recipe: Partial<RecipeDto>,
-  ): Promise<RecipeDto> {
+  async updateRecipe(@Param() param: RecipeIdDto, @Body() recipe: Partial<RecipeDto>): Promise<RecipeDto> {
     const id = param._id;
     const updatedRecipe = await this.recipeService.update(id, recipe);
     if (!updatedRecipe) {

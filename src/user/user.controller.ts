@@ -28,4 +28,13 @@ export class UserController {
     }
     return deletedUser;
   }
+
+  @Get('/:id')
+  async getUser(@Param('id') id: string) {
+    const user = await this.userService.getById(id);
+    if (!user) {
+      throw new NotFoundException('User with this id does not exist');
+    }
+    return user;
+  }
 }

@@ -3,7 +3,7 @@ import { NestApplication } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { BearerAuthGuard } from '../../auth/strategies/bearer.strategy';
+import { RoleTypes } from '../../auth/enums/roles';
 import { UserInfoDto } from '../dto/user.dto';
 import { UserController } from '../user.controller';
 import { UserService } from '../user.service';
@@ -26,24 +26,22 @@ describe('POST /login', () => {
           useValue: mockUserService,
         },
       ],
-    })
-      .overrideGuard(BearerAuthGuard)
-      .useValue({
-        canActivate: (context: ExecutionContext) => {
-          const req = context.switchToHttp().getRequest();
-          if (req.body.noToken) {
-            return false;
-          }
-          req.user = generateUser({ isAdmin: req.body.isAdmin });
-          return true;
-        },
-      })
-      .compile();
+    }).compile();
     controller = module.get<UserController>(UserController);
     service = module.get<UserService>(UserService);
     getAllSpy = jest.spyOn(service, 'getAll');
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
+    app.useGlobalGuards({
+      canActivate: (context: ExecutionContext) => {
+        const req = context.switchToHttp().getRequest();
+        if (req.body.noToken || !req.body.isAdmin) {
+          return false;
+        }
+        req.user = generateUser({ roles: [RoleTypes.User, RoleTypes.Admin] });
+        return true;
+      },
+    });
     await app.init();
   });
 

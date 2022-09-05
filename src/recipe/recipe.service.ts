@@ -9,6 +9,11 @@ import { Recipe, RecipeDocument } from './recipe.schema';
 export class RecipeService {
   constructor(@InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>) {}
 
+  async create(recipe: Omit<RecipeDto, 'createdAt'>): Promise<RecipeDto> {
+    const newRecipe = new this.recipeModel(recipe);
+    return (await newRecipe.save()).toObject();
+  }
+
   getById(id: string): Promise<RecipeDto | null> {
     return this.recipeModel.findById(id).lean().exec();
   }

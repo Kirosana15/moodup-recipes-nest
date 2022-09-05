@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserDto } from '../../../user/dto/user.dto';
@@ -32,8 +33,8 @@ describe('AuthService.validateUser()', () => {
     expect(user?.refreshToken).not.toBeDefined();
   });
 
-  it(`should return null when password is not correct`, async () => {
-    const user = await authService.validateUser({ ...mockCredentials, password: 'wrong' });
-    expect(user).toBeNull();
+  it(`should throw UnauthorizedException when password is incorrect`, async () => {
+    const user = authService.validateUser({ ...mockCredentials, password: 'wrong' });
+    expect(user).rejects.toThrowError(UnauthorizedException);
   });
 });

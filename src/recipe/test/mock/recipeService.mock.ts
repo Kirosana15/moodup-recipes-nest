@@ -1,8 +1,9 @@
-import { RecipeInfoDto } from '../../dto/recipe.dto';
+import { PaginatedQueryDto } from '../../../dto/queries.dto';
+import { RecipeContentDto, RecipeDto } from '../../dto/recipe.dto';
 import { generateRecipes, recipeMock } from './recipe.mock';
 
 export const mockRecipeService = {
-  create: jest.fn().mockImplementation((recipe: Partial<RecipeInfoDto>) => {
+  create: jest.fn().mockImplementation((recipe: RecipeContentDto) => {
     return recipeMock(recipe);
   }),
   getById: jest.fn().mockImplementation((_id: string) => recipeMock({ _id })),

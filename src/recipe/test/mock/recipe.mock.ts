@@ -7,7 +7,7 @@ export const mockImageUrl = faker.image.food;
 export const mockContent = () => faker.lorem.paragraph(4);
 export const mockId = faker.database.mongodbObjectId;
 
-export const recipeMock = (recipe?: Partial<RecipeFullDto>): RecipeFullDto => ({
+export const recipeMock = (recipe?: Partial<RecipeDto>): RecipeDto => ({
   _id: recipe?._id || mockId(),
   ownerId: recipe?.ownerId || mockId(),
   title: recipe?.title || mockTitle(),

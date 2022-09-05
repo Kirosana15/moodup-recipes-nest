@@ -29,19 +29,19 @@ export class UserController {
     return deletedUser;
   }
 
+  @Get('/me')
+  getUserProfile(@Req() req: any): UserInfoDto {
+    const { _id, username, roles, createdAt } = req.user;
+    const user: UserInfoDto = { _id, username, roles, createdAt };
+    return user;
+  }
+
   @Get('/:id')
   async getUser(@Param('id') id: string) {
     const user = await this.userService.getById(id);
     if (!user) {
       throw new NotFoundException('User with this id does not exist');
     }
-    return user;
-  }
-
-  @Get('/me')
-  getUserProfile(@Req() req: any): UserInfoDto {
-    const { _id, username, roles, createdAt } = req.user;
-    const user: UserInfoDto = { _id, username, roles, createdAt };
     return user;
   }
 }

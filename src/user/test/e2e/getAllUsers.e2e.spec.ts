@@ -3,20 +3,22 @@ import { NestApplication } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { RoleTypes } from '../../auth/enums/roles';
-import { UserInfoDto } from '../dto/user.dto';
-import { UserController } from '../user.controller';
-import { UserService } from '../user.service';
-import { generateUser } from './mock/user.model.mock';
-import { mockUserService } from './mock/user.service.mock';
+import { RoleTypes } from '../../../auth/enums/roles';
+import { UserDto, UserInfoDto } from '../../dto/user.dto';
+import { UserController } from '../../user.controller';
+import { UserService } from '../../user.service';
+import { generateUserFromDb } from '../mock/user.model.mock';
+import { mockUserService } from '../mock/user.service.mock';
 
 describe('POST /login', () => {
   let service: UserService;
   let controller: UserController;
   let app: NestApplication;
   let getAllSpy: jest.SpyInstance;
+  let mockUser: UserDto;
 
   beforeEach(async () => {
+    mockUser = generateUserFromDb({ roles: [RoleTypes.User] });
     const module: TestingModule = await Test.createTestingModule({
       imports: [],
       controllers: [UserController],
@@ -35,14 +37,15 @@ describe('POST /login', () => {
     app.useGlobalGuards({
       canActivate: (context: ExecutionContext) => {
         const req = context.switchToHttp().getRequest();
-        if (req.body.noToken || !req.body.isAdmin) {
-          return false;
-        }
-        req.user = generateUser({ roles: [RoleTypes.User, RoleTypes.Admin] });
-        return true;
+        req.user = req.body;
+        return mockUser.roles.includes(RoleTypes.Admin);
       },
     });
     await app.init();
+  });
+
+  afterEach(() => {
+    app.close();
   });
 
   it('should be defined', () => {
@@ -53,7 +56,8 @@ describe('POST /login', () => {
     const TESTING_PATH = '/user/all';
 
     it(`should return ${HttpStatus.OK} and a list of all users`, async () => {
-      const res = await request(app.getHttpServer()).get(TESTING_PATH).send({ isAdmin: true }).expect(HttpStatus.OK);
+      mockUser.roles.push(RoleTypes.Admin);
+      const res = await request(app.getHttpServer()).get(TESTING_PATH).expect(HttpStatus.OK);
       const users = res.body;
       expect(users).toHaveLength(20);
       users.forEach((user: UserInfoDto) => {
@@ -63,14 +67,10 @@ describe('POST /login', () => {
     });
 
     it(`should return ${HttpStatus.FORBIDDEN} when user is not an admin`, async () => {
-      await request(app.getHttpServer()).get(TESTING_PATH).send({ isAdmin: false }).expect(HttpStatus.FORBIDDEN);
+      await request(app.getHttpServer()).get(TESTING_PATH).expect(HttpStatus.FORBIDDEN);
     });
-
-    it(`should return ${HttpStatus.FORBIDDEN} when token is not provided`, async () => {
-      await request(app.getHttpServer()).get(TESTING_PATH).send({ noToken: true }).expect(HttpStatus.FORBIDDEN);
-    });
-
     it(`should return ${HttpStatus.OK} and page $page of users`, async () => {
+      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
         .send({ isAdmin: true })
@@ -81,6 +81,7 @@ describe('POST /login', () => {
     });
 
     it(`should return ${HttpStatus.OK} and $limit amount of users`, async () => {
+      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
         .send({ isAdmin: true })
@@ -91,6 +92,7 @@ describe('POST /login', () => {
     });
 
     it(`should return ${HttpStatus.BAD_REQUEST} when page is not a number`, async () => {
+      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
         .send({ isAdmin: true })
@@ -100,6 +102,7 @@ describe('POST /login', () => {
     });
 
     it(`should return ${HttpStatus.BAD_REQUEST} when limit is not a number`, async () => {
+      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
         .send({ isAdmin: true })

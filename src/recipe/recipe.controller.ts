@@ -13,12 +13,9 @@ import { RecipeService } from './recipe.service';
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
 
-  @UseGuards(BearerAuthGuard)
+  @Roles(RoleTypes.Admin)
   @Get('/all')
-  getAllRecipes(@Req() req: any, @Query() query: PaginatedQueryDto): Promise<RecipeDto[]> {
-    if (!req.user.isAdmin) {
-      throw new UnauthorizedException();
-    }
+  getAllRecipes(@Query() query: PaginatedQueryDto): Promise<RecipeDto[]> {
     return this.recipeService.getAll(query);
   }
 

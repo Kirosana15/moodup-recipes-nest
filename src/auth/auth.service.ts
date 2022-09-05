@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserCredentialsDto, UserDto, UserInfoDto } from '../user/dto/user.dto';
+import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
 import { UserService } from '../user/user.service';
@@ -34,16 +34,18 @@ export class AuthService {
     return bcrypt.hash(password, salt);
   }
 
-  async validateUser(userCredentialsDto: UserCredentialsDto): Promise<UserDto | null> {
+  async validateUser(userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
     const { username, password } = userCredentialsDto;
     const user = await this.userService.getByUsername(username);
-    if (user) {
-      const isValid = await this.comparePassword(password, user.password);
-      if (isValid) {
-        return user;
-      }
+    if (!user) {
+      throw new UnauthorizedException();
     }
-    return null;
+    const isValid = await this.comparePassword(password, user.password);
+    if (!isValid) {
+      throw new UnauthorizedException();
+    }
+    const { password: _password, refreshToken: _refresh, ...userData } = user;
+    return userData;
   }
 
   async comparePassword(password: string, hash: string): Promise<boolean> {
@@ -55,10 +57,10 @@ export class AuthService {
       const refreshToken = header.split(' ')[0] === 'Bearer' ? header.split(' ')[1] : header;
       const { _id } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
       const user = await this.userService.getById(_id);
-      if (user?.refreshToken === refreshToken) {
-        return this.getNewTokens(user);
+      if (user?.refreshToken !== refreshToken) {
+        throw new UnauthorizedException('Invalid token');
       }
-      throw 'Invalid token';
+      return this.getNewTokens(user);
     } catch (err) {
       throw new UnauthorizedException('Invalid Token ');
     }
@@ -72,12 +74,11 @@ export class AuthService {
     return null;
   }
 
-  async getNewTokens(user: UserDto): Promise<TokensDto> {
+  async getNewTokens(user: UserInfoDto): Promise<TokensDto> {
     if (!user) {
       throw new UnauthorizedException();
     }
-    const { password: _password, refreshToken: _refreshToken, ...userData } = user;
-    const accessToken = this.jwtService.sign(userData);
+    const accessToken = this.jwtService.sign(user);
     const refreshToken = this.jwtService.sign({ _id: user._id });
     await this.userService.updateToken(user, refreshToken);
     return { accessToken, refreshToken };

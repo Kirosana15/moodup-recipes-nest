@@ -1,5 +1,6 @@
 import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import { UserDto } from '../../../user/dto/user.dto';
 
 import { mockCredentials } from '../../../user/test/mock/user.model.mock';
 import { mockUserService } from '../../../user/test/mock/user.service.mock';
@@ -25,10 +26,10 @@ describe('AuthService.validateUser()', () => {
   });
 
   it(`should return user data`, async () => {
-    const user = await authService.validateUser(mockCredentials);
+    const user = <UserDto>await authService.validateUser(mockCredentials);
     expect(user).toBeDefined();
     expect(user?.username).toEqual(mockCredentials.username);
-    expect(user?.refreshToken).toBeDefined();
+    expect(user?.refreshToken).not.toBeDefined();
   });
 
   it(`should return null when password is not correct`, async () => {

@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, HttpCode, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Headers, HttpCode, Patch, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 
 import { ApiTags } from '@nestjs/swagger';
@@ -23,7 +23,11 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
-  async login(@AuthorizedUser() tokens: TokensDto): Promise<TokensDto> {
+  async login(@AuthorizedUser() user: UserInfoDto): Promise<TokensDto> {
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    const tokens = await this.authService.getNewTokens(user);
     return tokens;
   }
 

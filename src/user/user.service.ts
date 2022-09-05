@@ -42,7 +42,7 @@ export class UserService {
       .exec();
   }
 
-  updateToken(user: UserDto, newToken: string): Promise<UserDto | null> {
+  updateToken(user: UserInfoDto, newToken: string): Promise<UserDto | null> {
     return this.userModel.findByIdAndUpdate(user._id, { refreshToken: newToken }, { new: true }).lean().exec();
   }
 }

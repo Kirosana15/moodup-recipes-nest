@@ -1,6 +1,10 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 
+<<<<<<< HEAD
+=======
+import { closeConnections, rootMongooseTestModule } from '../../mock/db.mock';
+>>>>>>> 602f588 (extend functionality of recipeMock)
 import { User, UserSchema } from '../user.schema';
 import { UserService } from '../user.service';
 import { closeConnections, rootMongooseTestModule } from './mock/db.mock';

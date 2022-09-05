@@ -2,7 +2,6 @@ import { ExecutionContext, HttpStatus, INestApplication, ValidationPipe } from '
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { BearerAuthGuard } from '../../../auth/strategies/bearer.strategy';
 import { rootMongooseTestModule } from '../../../mock/db.mock';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 import { RecipeDto } from '../../dto/recipe.dto';
@@ -23,18 +22,17 @@ describe('recipe', () => {
     })
       .overrideProvider(RecipeService)
       .useValue(recipeService)
-      .overrideGuard(BearerAuthGuard)
-      .useValue({
-        canActivate(context: ExecutionContext) {
-          const req = context.switchToHttp().getRequest();
-          req.user = mockUser;
-          return true;
-        },
-      })
       .compile();
 
-    app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
     app = module.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
+    app.useGlobalGuards({
+      canActivate(context: ExecutionContext) {
+        const req = context.switchToHttp().getRequest();
+        req.user = mockUser;
+        return true;
+      },
+    });
     await app.init();
   });
 
@@ -50,10 +48,15 @@ describe('recipe', () => {
     });
     it(`should return ${HttpStatus.BAD_REQUEST} when title is incorrect`, async () => {
       const badRecipe = { ...mockRecipe, title: '' };
-      const res = await request(app.getHttpServer()).post('/recipe').send(badRecipe).expect(HttpStatus.CREATED);
-      const recipe = <RecipeDto>res.body;
-      expect(recipe).toBeDefined();
-      expect(recipe.ownerId).toEqual(mockUser._id);
+      await request(app.getHttpServer()).post('/recipe').send(badRecipe).expect(HttpStatus.BAD_REQUEST);
+    });
+    it(`should return ${HttpStatus.BAD_REQUEST} when content is incorrect`, async () => {
+      const badRecipe = { ...mockRecipe, content: 1234 };
+      await request(app.getHttpServer()).post('/recipe').send(badRecipe).expect(HttpStatus.BAD_REQUEST);
+    });
+    it(`should return ${HttpStatus.BAD_REQUEST} when imageUrl is not url`, async () => {
+      const badRecipe = { ...mockRecipe, imageUrl: 'good looking food' };
+      await request(app.getHttpServer()).post('/recipe').send(badRecipe).expect(HttpStatus.BAD_REQUEST);
     });
   });
 });

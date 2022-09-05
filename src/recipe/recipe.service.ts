@@ -18,6 +18,10 @@ export class RecipeService {
     return this.recipeModel.findById(id).lean().exec();
   }
 
+  getAll(): Promise<RecipeDto[]> {
+    return this.recipeModel.find().lean().exec();
+  }
+
   delete(id: string): Promise<RecipeDto | null> {
     return this.recipeModel.findByIdAndDelete(id).lean().exec();
   }

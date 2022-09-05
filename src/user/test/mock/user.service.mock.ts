@@ -21,4 +21,5 @@ export const mockUserService = {
   }),
   refreshToken: jest.fn().mockReturnValue(generateUserFromDb()),
   updateToken: jest.fn().mockImplementation((user: UserDto) => ({ ...user, refreshToken: '' })),
+  delete: jest.fn().mockImplementation((id: string) => generateUserFromDb({ _id: id })),
 };

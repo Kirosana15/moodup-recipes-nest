@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 
 import { RecipeDto as RecipeFullDto } from '../../dto/recipe.dto';
 
-export const mockTitle = () => faker.word.adverb() + faker.word.adjective() + faker.word.noun();
+export const mockTitle = () => faker.word.noun(20);
 export const mockImageUrl = faker.image.food;
 export const mockContent = () => faker.lorem.paragraph(4);
 export const mockId = faker.database.mongodbObjectId;

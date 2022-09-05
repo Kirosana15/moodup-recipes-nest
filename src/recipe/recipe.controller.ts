@@ -12,9 +12,14 @@ import { RecipeService } from './recipe.service';
 @Controller('recipe')
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
+
+  @UseGuards(BearerAuthGuard)
   @Get('/all')
-  getAllRecipes(): Promise<RecipeDto[]> {
-    return this.recipeService.getAll();
+  getAllRecipes(@Req() req: any): Promise<RecipeDto[]> {
+    if (req.user.isAdmin) {
+      return this.recipeService.getAll();
+    }
+    throw new UnauthorizedException();
   }
 
   @Post('/')

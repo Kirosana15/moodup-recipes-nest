@@ -15,7 +15,7 @@ export class UserController {
 
   @Get('/all')
   @Roles(RoleTypes.Admin)
-  getAllUsers(@Req() req: any, @Query() paginatedQueryDto?: PaginatedQueryDto): Promise<UserInfoDto[]> {
+  getAllUsers(@Query() paginatedQueryDto?: PaginatedQueryDto): Promise<UserInfoDto[]> {
     return this.userService.getAll(paginatedQueryDto);
   }
 
@@ -35,6 +35,13 @@ export class UserController {
     if (!user) {
       throw new NotFoundException('User with this id does not exist');
     }
+    return user;
+  }
+
+  @Get('/me')
+  getUserProfile(@Req() req: any): UserInfoDto {
+    const { _id, username, roles, createdAt } = req.user;
+    const user: UserInfoDto = { _id, username, roles, createdAt };
     return user;
   }
 }

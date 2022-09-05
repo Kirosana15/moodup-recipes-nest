@@ -25,15 +25,6 @@ export class RecipeController {
     return this.recipeService.create(recipe);
   }
 
-  @Get(':_id')
-  async getRecipeById(@Param() param: RecipeDto): Promise<RecipeDto> {
-    const recipe = await this.recipeService.getById(param._id);
-    if (!recipe) {
-      throw new NotFoundException('Recipe does not exist');
-    }
-    return recipe;
-  }
-
   @UseGuards(OwnerGuard)
   @Delete(':_id')
   async deleteRecipe(@Param() params: RecipeIdDto): Promise<RecipeDto | null> {

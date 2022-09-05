@@ -1,8 +1,8 @@
-import { ExecutionContext, HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
-import { BearerAuthGuard } from '../../../auth/strategies/bearer.strategy';
+import { RoleTypes } from '../../../auth/enums/roles';
 import { rootMongooseTestModule } from '../../../mock/db.mock';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 import { RecipeModule } from '../../recipe.module';
@@ -20,18 +20,17 @@ describe('recipe', () => {
     })
       .overrideProvider(RecipeService)
       .useValue(recipeService)
-      .overrideGuard(BearerAuthGuard)
-      .useValue({
-        canActivate(context: ExecutionContext) {
-          const req = context.switchToHttp().getRequest();
-          req.user = mockUser;
-          return true;
-        },
-      })
       .compile();
 
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
+    app.useGlobalGuards({
+      canActivate(context) {
+        const req = context.switchToHttp().getRequest();
+        req.user = mockUser;
+        return mockUser.roles.includes(RoleTypes.Admin);
+      },
+    });
     await app.init();
   });
 
@@ -40,16 +39,16 @@ describe('recipe', () => {
   });
   describe('/GET all', () => {
     it('should require user to be an admin', async () => {
-      await request(app.getHttpServer()).get('/recipe/all').expect(HttpStatus.UNAUTHORIZED);
+      await request(app.getHttpServer()).get('/recipe/all').expect(HttpStatus.FORBIDDEN);
     });
     it('should return list of all recipes', async () => {
-      mockUser.isAdmin = true;
+      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer()).get('/recipe/all').expect(HttpStatus.OK);
       expect(res.body).toBeDefined();
       expect(res.body).toHaveLength(10);
     });
     it('should return paginated list', async () => {
-      mockUser.isAdmin = true;
+      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer()).get('/recipe/all?limit=5').expect(HttpStatus.OK);
       expect(res.body).toBeDefined();
       expect(res.body).toHaveLength(5);

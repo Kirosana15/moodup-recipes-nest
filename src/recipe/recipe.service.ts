@@ -2,14 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PaginatedQueryDto } from '../dto/queries.dto';
-import { RecipeDto } from './dto/recipe.dto';
+import { RecipeDto, RecipeInfoDto } from './dto/recipe.dto';
 import { Recipe, RecipeDocument } from './recipe.schema';
 
 @Injectable()
 export class RecipeService {
   constructor(@InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>) {}
 
-  async create(recipe: Omit<RecipeDto, 'createdAt'>): Promise<RecipeDto> {
+  async create(recipe: Omit<RecipeInfoDto, 'createdAt'>): Promise<RecipeDto> {
     const newRecipe = new this.recipeModel(recipe);
     return (await newRecipe.save()).toObject();
   }

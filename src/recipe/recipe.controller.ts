@@ -1,13 +1,19 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
 import { OwnerGuard } from '../auth/guards/owner.guard';
 import { PaginatedQueryDto } from '../dto/queries.dto';
-import { RecipeDto, RecipeIdDto } from './dto/recipe.dto';
+import { RecipeDto, RecipeContentDto, RecipeIdDto } from './dto/recipe.dto';
 
 import { RecipeService } from './recipe.service';
 
 @Controller('recipe')
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
+
+  @Post('')
+  createRecipe(@Body() recipeContents: RecipeContentDto, @Req() req: any): Promise<RecipeDto> {
+    const recipe = { ...recipeContents, ownerId: req.user._id };
+    return this.recipeService.create(recipe);
+  }
 
   @Get(':_id')
   async getRecipeById(@Param() param: RecipeDto): Promise<RecipeDto> {

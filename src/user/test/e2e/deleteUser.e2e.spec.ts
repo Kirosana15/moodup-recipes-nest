@@ -14,7 +14,7 @@ describe('user', () => {
   let app: NestApplication;
   let mockUser: UserDto;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     mockUser = generateUserFromDb({ roles: [RoleTypes.User] });
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],

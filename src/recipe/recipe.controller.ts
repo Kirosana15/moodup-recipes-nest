@@ -15,11 +15,11 @@ export class RecipeController {
 
   @UseGuards(BearerAuthGuard)
   @Get('/all')
-  getAllRecipes(@Req() req: any): Promise<RecipeDto[]> {
-    if (req.user.isAdmin) {
-      return this.recipeService.getAll();
+  getAllRecipes(@Req() req: any, @Query() query: PaginatedQueryDto): Promise<RecipeDto[]> {
+    if (!req.user.isAdmin) {
+      throw new UnauthorizedException();
     }
-    throw new UnauthorizedException();
+    return this.recipeService.getAll(query);
   }
 
   @Post('/')

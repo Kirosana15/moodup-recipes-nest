@@ -42,7 +42,7 @@ export class RecipeController {
     @Req() req: any,
     @Param() param: RecipeIdDto,
     @Body() recipe: Partial<RecipeDto>,
-  ): Promise<RecipeDto | null> {
+  ): Promise<RecipeDto> {
     const id = param._id;
     const updatedRecipe = await this.recipeService.update(id, recipe);
     if (!updatedRecipe) {

@@ -28,19 +28,17 @@ describe('RecipeService.update()', () => {
     await closeConnections();
   });
 
-  it('should be defined', () => {
-    expect(recipeService).toBeDefined();
-  });
-
   it('should update recipe in database', async () => {
     await recipeService.update(recipe._id, { title: 'test' });
     const recipeFromDb = await recipeModel.findById(recipe._id);
     expect(recipeFromDb?.title).toEqual('test');
   });
+
   it('should return updated recipe', async () => {
     const updatedRecipe = await recipeService.update(recipe._id, { title: 'test' });
     expect(updatedRecipe?.title).toEqual('test');
   });
+
   it('should return null when recipe does not exist', async () => {
     const updatedRecipe = await recipeService.update(mockId(), { title: 'test' });
     expect(updatedRecipe).toBeNull();

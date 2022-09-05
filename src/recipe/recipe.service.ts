@@ -18,8 +18,15 @@ export class RecipeService {
     return this.recipeModel.findById(id).lean().exec();
   }
 
-  getAll(): Promise<RecipeDto[]> {
-    return this.recipeModel.find().lean().exec();
+  getAll(paginatedQueryDto?: Partial<PaginatedQueryDto>): Promise<RecipeDto[]> {
+    const page = paginatedQueryDto?.page || 1;
+    const limit = paginatedQueryDto?.limit || 10;
+    return this.recipeModel
+      .find({})
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ _id: -1 })
+      .exec();
   }
 
   delete(id: string): Promise<RecipeDto | null> {

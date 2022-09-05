@@ -9,7 +9,7 @@ import { RecipeService } from './recipe.service';
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
 
-  @Post('')
+  @Post('/')
   createRecipe(@Body() recipeContents: RecipeContentDto, @Req() req: any): Promise<RecipeDto> {
     const recipe = { ...recipeContents, ownerId: req.user._id };
     return this.recipeService.create(recipe);

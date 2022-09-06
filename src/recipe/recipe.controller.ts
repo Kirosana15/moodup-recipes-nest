@@ -13,6 +13,12 @@ import { RecipeService } from './recipe.service';
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
 
+  @Roles(RoleTypes.Admin)
+  @Get('/all')
+  getAllRecipes(@Query() query: PaginatedQueryDto) {
+    return this.recipeService.getAll(query);
+  }
+
   @Post('/')
   createRecipe(@Body() recipeContents: RecipeContentDto, @AuthorizedUser() user: UserInfoDto): Promise<RecipeDto> {
     const recipe = { ...recipeContents, ownerId: user._id };
@@ -39,10 +45,7 @@ export class RecipeController {
   }
 
   @Get('/search/:query')
-  searchRecipeTitles(
-    @Param('query') query: string,
-    @Query() paginatedQueryDto: PaginatedQueryDto,
-  ): Promise<RecipeDto[]> {
+  searchRecipeTitles(@Param('query') query: string, @Query() paginatedQueryDto: PaginatedQueryDto) {
     return this.recipeService.searchInTitle(query, paginatedQueryDto);
   }
 

@@ -11,9 +11,11 @@ describe('RecipeService.getById()', () => {
   let service: RecipeService;
   let recipeModel: Model<RecipeDocument>;
   let findByIdSpy: jest.SpyInstance;
-  beforeEach(async () => {
+  let module: TestingModule;
+
+  beforeAll(async () => {
     jest.clearAllMocks();
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: Recipe.name, schema: RecipeSchema }])],
       providers: [RecipeService],
     }).compile();
@@ -23,8 +25,13 @@ describe('RecipeService.getById()', () => {
     findByIdSpy = jest.spyOn(recipeModel, 'findById');
   });
 
+  afterEach(async () => {
+    await recipeModel.db.dropDatabase();
+  });
+
   afterAll(async () => {
     await closeConnections();
+    await module.close();
   });
 
   it('should be defined', () => {

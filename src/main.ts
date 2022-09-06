@@ -15,7 +15,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
-  app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   const configService = app.get(ConfigService);
   const PORT = configService.get('PORT') || 3000;
   await app.listen(PORT);

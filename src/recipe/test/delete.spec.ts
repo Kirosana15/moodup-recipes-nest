@@ -2,7 +2,7 @@ import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 
-import { rootMongooseTestModule } from '../../mock/db.mock';
+import { closeConnections, rootMongooseTestModule } from '../../mock/db.mock';
 import { Recipe, RecipeDocument, RecipeSchema } from '../recipe.schema';
 import { RecipeService } from '../recipe.service';
 import { mockId, recipeMock } from './mock/recipe.mock';
@@ -10,16 +10,26 @@ import { mockId, recipeMock } from './mock/recipe.mock';
 describe('RecipeService.delete()', () => {
   let recipeService: RecipeService;
   let recipeModel: Model<RecipeDocument>;
+  let module: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     jest.clearAllMocks();
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: Recipe.name, schema: RecipeSchema }])],
       providers: [RecipeService],
     }).compile();
 
     recipeService = module.get(RecipeService);
     recipeModel = module.get(getModelToken(Recipe.name));
+  });
+
+  afterEach(async () => {
+    await recipeModel.db.dropDatabase();
+  });
+
+  afterAll(async () => {
+    await closeConnections();
+    await module.close();
   });
 
   it('should delete recipe from database', async () => {

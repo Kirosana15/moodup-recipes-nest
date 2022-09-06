@@ -11,9 +11,11 @@ describe('RecipeService.update()', () => {
   let recipeService: RecipeService;
   let recipeModel: Model<RecipeDocument>;
   let recipe: RecipeDocument;
+  let module: TestingModule;
+
   beforeEach(async () => {
     jest.clearAllMocks();
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: Recipe.name, schema: RecipeSchema }])],
       providers: [RecipeService],
     }).compile();
@@ -24,8 +26,13 @@ describe('RecipeService.update()', () => {
     await recipe.save();
   });
 
+  afterEach(async () => {
+    await recipeModel.db.dropDatabase();
+  });
+
   afterAll(async () => {
     await closeConnections();
+    await module.close();
   });
 
   it('should update recipe in database', async () => {

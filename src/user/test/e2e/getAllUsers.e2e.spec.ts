@@ -12,14 +12,14 @@ import { mockUserService } from '../mock/user.service.mock';
 
 describe('POST /login', () => {
   let service: UserService;
-  let controller: UserController;
   let app: NestApplication;
   let getAllSpy: jest.SpyInstance;
   let mockUser: UserDto;
+  let module: TestingModule;
 
-  beforeEach(async () => {
-    mockUser = generateUserFromDb({ roles: [RoleTypes.User] });
-    const module: TestingModule = await Test.createTestingModule({
+  beforeAll(async () => {
+    mockUser = generateUserFromDb({ roles: [RoleTypes.User, RoleTypes.Admin] });
+    module = await Test.createTestingModule({
       imports: [],
       controllers: [UserController],
       providers: [
@@ -29,37 +29,31 @@ describe('POST /login', () => {
         },
       ],
     }).compile();
-    controller = module.get<UserController>(UserController);
     service = module.get<UserService>(UserService);
     getAllSpy = jest.spyOn(service, 'getAll');
     app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
     app.useGlobalGuards({
       canActivate: (context: ExecutionContext) => {
         const req = context.switchToHttp().getRequest();
         req.user = req.body;
-        return mockUser.roles.includes(RoleTypes.Admin);
+        return req.body.roles.includes(RoleTypes.Admin);
       },
     });
     await app.init();
   });
 
-  afterEach(() => {
-    app.close();
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  afterAll(async () => {
+    await module.close();
   });
 
   describe('GET /user/all/', () => {
     const TESTING_PATH = '/user/all';
 
     it(`should return ${HttpStatus.OK} and a list of all users`, async () => {
-      mockUser.roles.push(RoleTypes.Admin);
-      const res = await request(app.getHttpServer()).get(TESTING_PATH).expect(HttpStatus.OK);
+      const res = await request(app.getHttpServer()).get(TESTING_PATH).send(mockUser).expect(HttpStatus.OK);
       const users = res.body;
-      expect(users).toHaveLength(20);
+      expect(users).toHaveLength(10);
       users.forEach((user: UserInfoDto) => {
         expect(user._id).toBeDefined();
       });
@@ -67,24 +61,25 @@ describe('POST /login', () => {
     });
 
     it(`should return ${HttpStatus.FORBIDDEN} when user is not an admin`, async () => {
-      await request(app.getHttpServer()).get(TESTING_PATH).expect(HttpStatus.FORBIDDEN);
+      await request(app.getHttpServer())
+        .get(TESTING_PATH)
+        .send({ ...mockUser, roles: [RoleTypes.User] })
+        .expect(HttpStatus.FORBIDDEN);
     });
     it(`should return ${HttpStatus.OK} and page $page of users`, async () => {
-      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
-        .send({ isAdmin: true })
+        .send(mockUser)
         .query({ page: 2 })
         .expect(HttpStatus.OK);
       const users = res.body;
-      expect(users).toHaveLength(20);
+      expect(users).toHaveLength(10);
     });
 
     it(`should return ${HttpStatus.OK} and $limit amount of users`, async () => {
-      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
-        .send({ isAdmin: true })
+        .send(mockUser)
         .query({ limit: 10 })
         .expect(HttpStatus.OK);
       const users = res.body;
@@ -92,20 +87,18 @@ describe('POST /login', () => {
     });
 
     it(`should return ${HttpStatus.BAD_REQUEST} when page is not a number`, async () => {
-      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
-        .send({ isAdmin: true })
+        .send(mockUser)
         .query({ page: 'two' })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body.message[0]).toMatch('page must be a number');
     });
 
     it(`should return ${HttpStatus.BAD_REQUEST} when limit is not a number`, async () => {
-      mockUser.roles.push(RoleTypes.Admin);
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
-        .send({ isAdmin: true })
+        .send(mockUser)
         .query({ limit: 'two' })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body.message[0]).toMatch('limit must be a number');

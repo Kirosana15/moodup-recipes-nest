@@ -1,10 +1,10 @@
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
 import { RoleTypes } from '../../../auth/enums/roles';
 import { PaginatedResults } from '../../../dto/paginatedResults.dto';
-import { rootMongooseTestModule } from '../../../mock/db.mock';
+import { closeConnections, rootMongooseTestModule } from '../../../mock/db.mock';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 import { RecipeInfoDto } from '../../dto/recipe.dto';
 import { RecipeModule } from '../../recipe.module';
@@ -15,9 +15,10 @@ describe('recipe', () => {
   let app: INestApplication;
   const recipeService = mockRecipeService;
   const mockUser = generateUserFromDb();
+  let module: TestingModule;
 
   beforeAll(async () => {
-    const module = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), RecipeModule],
     })
       .overrideProvider(RecipeService)
@@ -37,7 +38,8 @@ describe('recipe', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await closeConnections();
+    await module.close();
   });
 
   describe('/GET all', () => {

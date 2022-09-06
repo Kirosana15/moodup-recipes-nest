@@ -1,4 +1,4 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -24,12 +24,13 @@ describe('recipe', () => {
       ],
     }).compile();
 
-    afterAll(async () => {
-      await app.close();
-    });
-
     app = module.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
+  });
+
+  afterAll(async () => {
+    await module.close();
   });
 
   describe('/GET search/:query', () => {

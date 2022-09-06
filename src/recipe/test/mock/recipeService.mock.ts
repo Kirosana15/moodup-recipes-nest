@@ -19,5 +19,10 @@ export const mockRecipeService = {
     const items = generateRecipes(limit);
     return paginate(page, limit, limit * page + 5, items);
   }),
+  getByOwnerId: jest.fn().mockImplementation((ownerId: string, paginatedQueryDto: PaginatedQueryDto) => {
+    const { page, limit } = paginatedQueryDto;
+    const items = generateRecipes(limit, { ownerId });
+    return paginate(page, limit, limit * page + 5, items);
+  }),
   update: jest.fn().mockImplementation((id: string, recipe: Partial<RecipeDto>) => recipeMock({ _id: id, ...recipe })),
 };

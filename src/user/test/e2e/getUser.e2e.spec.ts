@@ -12,10 +12,11 @@ import { mockUserService } from '../mock/user.service.mock';
 describe('user', () => {
   let app: NestApplication;
   let mockUser: UserInfoDto;
+  let module: TestingModule;
 
   beforeAll(async () => {
     mockUser = generateUser();
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [],
       controllers: [UserController],
       providers: [
@@ -39,8 +40,9 @@ describe('user', () => {
     await app.init();
   });
   afterAll(async () => {
-    await app.close();
+    await module.close();
   });
+
   describe('/GET :id', () => {
     const TEST_PATH = '/user/';
     it(`should return ${HttpStatus.OK} and user information`, async () => {

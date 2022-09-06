@@ -1,5 +1,6 @@
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Model } from 'mongoose';
 
 import { closeConnections, rootMongooseTestModule } from '../../mock/db.mock';
 import { User, UserSchema } from '../user.schema';
@@ -8,18 +9,27 @@ import { mockCredentials, mockId } from './mock/user.model.mock';
 
 describe('UserService.refreshToken()', () => {
   let service: UserService;
-  beforeEach(async () => {
+  let userModel: Model<UserService>;
+  let module: TestingModule;
+
+  beforeAll(async () => {
     jest.clearAllMocks();
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
       providers: [UserService],
     }).compile();
 
     service = module.get(UserService);
+    userModel = module.get(getModelToken(User.name));
+  });
+
+  afterEach(async () => {
+    userModel.db.dropDatabase();
   });
 
   afterAll(async () => {
     await closeConnections();
+    await module.close();
   });
 
   it('should be defined', () => {

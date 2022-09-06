@@ -13,7 +13,7 @@ describe('RecipeService.update()', () => {
   let recipe: RecipeDocument;
   let module: TestingModule;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     jest.clearAllMocks();
     module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: Recipe.name, schema: RecipeSchema }])],
@@ -22,6 +22,9 @@ describe('RecipeService.update()', () => {
 
     recipeService = module.get(RecipeService);
     recipeModel = module.get(getModelToken(Recipe.name));
+  });
+
+  beforeEach(async () => {
     recipe = new recipeModel(recipeMock());
     await recipe.save();
   });

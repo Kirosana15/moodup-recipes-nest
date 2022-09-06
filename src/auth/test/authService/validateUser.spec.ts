@@ -11,7 +11,7 @@ import { AuthService } from '../../auth.service';
 
 describe('AuthService.validateUser()', () => {
   let authService: AuthService;
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: '60m' } }),

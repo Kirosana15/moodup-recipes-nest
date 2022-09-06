@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 import { OwnerGuard } from '../../auth/guards/owner.guard';
-import { rootMongooseTestModule } from '../../mock/db.mock';
+import { closeConnections, rootMongooseTestModule } from '../../mock/db.mock';
 import { generateUserFromDb } from '../../user/test/mock/user.model.mock';
 import { RecipeModule } from '../recipe.module';
 import { RecipeService } from '../recipe.service';
@@ -39,6 +39,7 @@ describe('recipe', () => {
   });
 
   afterAll(async () => {
+    await closeConnections();
     await app.close();
   });
 

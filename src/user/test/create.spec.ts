@@ -9,22 +9,29 @@ import { mockCredentials, mockUsername } from './mock/user.model.mock';
 
 describe('UserService.create()', () => {
   let service: UserService;
-  let userMock: Model<UserDocument>;
+  let userModel: Model<UserDocument>;
   let saveSpy: jest.SpyInstance;
-  beforeEach(async () => {
+  let module: TestingModule;
+
+  beforeAll(async () => {
     jest.clearAllMocks();
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
       providers: [UserService],
     }).compile();
 
     service = module.get(UserService);
-    userMock = module.get(getModelToken(User.name));
-    saveSpy = jest.spyOn(userMock.prototype, 'save');
+    userModel = module.get(getModelToken(User.name));
+    saveSpy = jest.spyOn(userModel.prototype, 'save');
+  });
+
+  afterEach(async () => {
+    userModel.db.dropDatabase();
   });
 
   afterAll(async () => {
     await closeConnections();
+    await module.close();
   });
 
   it('should be defined', () => {

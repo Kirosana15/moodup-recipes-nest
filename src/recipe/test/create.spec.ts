@@ -31,6 +31,7 @@ describe('RecipeService.create()', () => {
 
   afterAll(async () => {
     await closeConnections();
+    await module.close();
   });
 
   it('should be defined', () => {

@@ -13,7 +13,7 @@ describe('AuthController', () => {
 
   const TESTED_PATH = '/auth/refresh-token';
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {

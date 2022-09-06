@@ -13,10 +13,11 @@ import { mockUserService } from '../mock/user.service.mock';
 describe('user', () => {
   let app: NestApplication;
   let mockUser: UserDto;
+  let module: TestingModule;
 
   beforeAll(async () => {
     mockUser = generateUserFromDb({ roles: [RoleTypes.User] });
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       controllers: [UserController],
       providers: [UserService],
     })
@@ -36,8 +37,8 @@ describe('user', () => {
     await app.init();
   });
 
-  afterEach(() => {
-    app.close();
+  afterAll(async () => {
+    await module.close();
   });
 
   describe('/DELETE :id', () => {

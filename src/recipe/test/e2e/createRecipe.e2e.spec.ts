@@ -1,8 +1,8 @@
 import { ExecutionContext, HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { rootMongooseTestModule } from '../../../mock/db.mock';
+import { closeConnections, rootMongooseTestModule } from '../../../mock/db.mock';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 import { RecipeDto } from '../../dto/recipe.dto';
 import { RecipeModule } from '../../recipe.module';
@@ -15,9 +15,10 @@ describe('recipe', () => {
   const recipeService = mockRecipeService;
   const mockUser = generateUserFromDb();
   const mockRecipe = recipeMock();
+  let module: TestingModule;
 
   beforeAll(async () => {
-    const module = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), RecipeModule],
     })
       .overrideProvider(RecipeService)
@@ -37,8 +38,10 @@ describe('recipe', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    await closeConnections();
+    await module.close();
   });
+
   describe('/POST', () => {
     it('should return created recipe', async () => {
       const res = await request(app.getHttpServer()).post('/recipe').send(mockRecipe).expect(HttpStatus.CREATED);

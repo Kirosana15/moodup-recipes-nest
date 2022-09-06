@@ -10,8 +10,9 @@ import { AuthService } from '../../auth.service';
 
 describe('AuthService.validateUser()', () => {
   let authService: AuthService;
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+  let module: TestingModule;
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
       imports: [
         JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: '60m' } }),
         {
@@ -23,6 +24,10 @@ describe('AuthService.validateUser()', () => {
       providers: [AuthService],
     }).compile();
     authService = module.get<AuthService>(AuthService);
+  });
+
+  afterAll(async () => {
+    await module.close();
   });
 
   it(`should return true if password matches hash`, async () => {

@@ -13,7 +13,7 @@ describe('AuthService.register()', () => {
   let userService: UserService;
   let createSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: '60m' } }),

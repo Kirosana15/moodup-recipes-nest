@@ -10,7 +10,7 @@ import { generateUserFromDb, mockId } from './mock/user.model.mock';
 
 describe('UserService.delete()', () => {
   let service: UserService;
-  let userMock: Model<UserDocument>;
+  let userModel: Model<UserDocument>;
   const mockUser = generateUserFromDb();
   let module: TestingModule;
 
@@ -22,7 +22,7 @@ describe('UserService.delete()', () => {
     }).compile();
 
     service = module.get(UserService);
-    userMock = module.get(getModelToken(User.name));
+    userModel = module.get(getModelToken(User.name));
   });
 
   afterAll(async () => {
@@ -31,7 +31,7 @@ describe('UserService.delete()', () => {
   });
 
   it('should return deleted user', async () => {
-    const user: UserDto = (await userMock.create(mockUser)).toObject();
+    const user: UserDto = (await userModel.create(mockUser)).toObject();
     const deletedUser = await service.delete(user._id);
     expect(deletedUser?._id).toStrictEqual(user._id);
   });

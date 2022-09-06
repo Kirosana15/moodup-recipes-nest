@@ -14,7 +14,7 @@ describe('AuthService.refreshTokens()', () => {
   let userService: UserService;
   let getByIdSpy: jest.SpyInstance;
   let jwt: JwtService;
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: '60m' } }),

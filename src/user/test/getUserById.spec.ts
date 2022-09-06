@@ -9,26 +9,29 @@ import { generateUserFromDb, mockId } from './mock/user.model.mock';
 
 describe('UserService.getById()', () => {
   let service: UserService;
-  let userMock: Model<UserDocument>;
+  let userModel: Model<UserDocument>;
   let findByIdSpy: jest.SpyInstance;
-  beforeEach(async () => {
+  let module: TestingModule;
+
+  beforeAll(async () => {
     jest.clearAllMocks();
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
       providers: [UserService],
     }).compile();
 
     service = module.get(UserService);
-    userMock = module.get(getModelToken(User.name));
-    findByIdSpy = jest.spyOn(userMock, 'findById');
+    userModel = module.get(getModelToken(User.name));
+    findByIdSpy = jest.spyOn(userModel, 'findById');
+  });
+
+  afterEach(async () => {
+    await userModel.db.dropDatabase();
   });
 
   afterAll(async () => {
     await closeConnections();
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    await module.close();
   });
 
   it('should return user', async () => {

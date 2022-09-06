@@ -15,7 +15,7 @@ describe('POST /login', () => {
   let app: NestApplication;
   let validateUserSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [

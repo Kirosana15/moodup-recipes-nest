@@ -14,7 +14,7 @@ describe('POST auth/register', () => {
   let app: NestApplication;
   let registerSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [

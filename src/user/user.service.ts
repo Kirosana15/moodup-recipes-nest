@@ -4,6 +4,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { PaginatedQueryDto } from '../dto/queries.dto';
+import { PaginatedResults } from '../dto/paginatedResults.dto';
+import { paginate } from '../helpers/paginate';
 
 @Injectable()
 export class UserService {
@@ -40,15 +42,20 @@ export class UserService {
     return null;
   }
 
-  getAll(paginatedQueryDto?: Partial<PaginatedQueryDto>): Promise<UserInfoDto[]> {
-    const page = paginatedQueryDto?.page || 1;
-    const limit = paginatedQueryDto?.limit || 10;
-    return this.userModel
+  async getAll(paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<UserInfoDto>> {
+    const page = paginatedQueryDto.page;
+    const limit = paginatedQueryDto.limit;
+    const countQuery = this.userModel.count();
+    const usersQuery = this.userModel
       .find({}, '_id username roles createdAt')
       .skip((page - 1) * limit)
       .limit(limit)
       .sort({ _id: -1 })
       .exec();
+
+    const [count, users] = await Promise.all([countQuery, usersQuery]);
+
+    return paginate<UserInfoDto>(page, limit, count, users);
   }
 
   updateToken(user: UserInfoDto, newToken: string): Promise<UserDto | null> {

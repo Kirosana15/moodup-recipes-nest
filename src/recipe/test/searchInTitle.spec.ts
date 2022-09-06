@@ -5,14 +5,16 @@ import { Model } from 'mongoose';
 import { closeConnections, rootMongooseTestModule } from '../../mock/db.mock';
 import { Recipe, RecipeDocument, RecipeSchema } from '../recipe.schema';
 import { RecipeService } from '../recipe.service';
-import { recipeMock } from './mock/recipe.mock';
+import { mockPaginationQuery, recipeMock } from './mock/recipe.mock';
 
 describe('RecipeService.searchInTitle()', () => {
   let recipeService: RecipeService;
   let recipeModel: Model<RecipeDocument>;
-  beforeEach(async () => {
+  let module: TestingModule;
+
+  beforeAll(async () => {
     jest.clearAllMocks();
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: Recipe.name, schema: RecipeSchema }])],
       providers: [RecipeService],
     }).compile();
@@ -21,12 +23,18 @@ describe('RecipeService.searchInTitle()', () => {
     recipeModel = module.get(getModelToken(Recipe.name));
   });
 
+  afterEach(async () => {
+    await recipeModel.db.dropDatabase();
+  });
+
   afterAll(async () => {
     await closeConnections();
+    await module.close();
   });
+
   it('should fetch recipes from database', async () => {
     const newRecipe = await new recipeModel(recipeMock()).save();
-    const [recipe] = await recipeService.searchInTitle(newRecipe.title);
+    const [recipe] = (await recipeService.searchInTitle(newRecipe.title, mockPaginationQuery())).items;
     expect(recipe).toBeDefined();
     expect(recipe.title).toBe(newRecipe.title);
     expect(recipe.imageUrl).toBe(newRecipe.imageUrl);
@@ -36,18 +44,18 @@ describe('RecipeService.searchInTitle()', () => {
   it('should find recipes with titles containing a query', async () => {
     const newRecipe = await new recipeModel(recipeMock()).save();
     const partTitle = newRecipe.title.slice(0, 3);
-    const foundRecipes = await recipeService.searchInTitle(partTitle);
+    const { items: foundRecipes } = await recipeService.searchInTitle(partTitle, mockPaginationQuery());
     expect(foundRecipes[0]._id).toStrictEqual(newRecipe._id);
   });
 
   describe('should not return recipe when', () => {
     it('query does not match any existing title', async () => {
-      expect(await recipeService.searchInTitle(recipeMock().title)).toHaveLength(0);
+      expect((await recipeService.searchInTitle(recipeMock().title, mockPaginationQuery())).items).toHaveLength(0);
     });
 
     it('no title was provided', async () => {
       const title = '';
-      expect(await recipeService.searchInTitle(title)).toHaveLength(0);
+      expect((await recipeService.searchInTitle(title, mockPaginationQuery())).items).toHaveLength(0);
     });
   });
 });

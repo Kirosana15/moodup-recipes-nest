@@ -11,9 +11,11 @@ describe('RecipeService.create()', () => {
   let service: RecipeService;
   let recipeModel: Model<RecipeService>;
   let saveSpy: jest.SpyInstance;
-  beforeEach(async () => {
+  let module: TestingModule;
+
+  beforeAll(async () => {
     jest.clearAllMocks();
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: Recipe.name, schema: RecipeSchema }])],
       providers: [RecipeService],
     }).compile();
@@ -22,6 +24,11 @@ describe('RecipeService.create()', () => {
     recipeModel = module.get(getModelToken(Recipe.name));
     saveSpy = jest.spyOn(recipeModel.prototype, 'save');
   });
+
+  afterEach(async () => {
+    await recipeModel.db.dropDatabase();
+  });
+
   afterAll(async () => {
     await closeConnections();
   });

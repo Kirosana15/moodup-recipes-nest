@@ -15,7 +15,7 @@ export class RecipeController {
 
   @Roles(RoleTypes.Admin)
   @Get('/all')
-  getAllRecipes(@Query() query: PaginatedQueryDto): Promise<RecipeDto[]> {
+  getAllRecipes(@Query() query: PaginatedQueryDto) {
     return this.recipeService.getAll(query);
   }
 
@@ -45,10 +45,7 @@ export class RecipeController {
   }
 
   @Get('/search/:query')
-  searchRecipeTitles(
-    @Param('query') query: string,
-    @Query() paginatedQueryDto: PaginatedQueryDto,
-  ): Promise<RecipeDto[]> {
+  searchRecipeTitles(@Param('query') query: string, @Query() paginatedQueryDto: PaginatedQueryDto) {
     return this.recipeService.searchInTitle(query, paginatedQueryDto);
   }
 

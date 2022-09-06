@@ -3,9 +3,10 @@ import { RoleTypes } from '../auth/enums/roles';
 import { OwnerGuard } from '../auth/guards/owner.guard';
 import { AuthorizedUser } from '../decorators/authorizedUser';
 import { Roles } from '../decorators/roles';
+import { PaginatedResults } from '../dto/paginatedResults.dto';
 import { PaginatedQueryDto } from '../dto/queries.dto';
 import { UserInfoDto } from '../user/dto/user.dto';
-import { RecipeDto, RecipeContentDto, RecipeIdDto } from './dto/recipe.dto';
+import { RecipeDto, RecipeContentDto, RecipeIdDto, RecipeInfoDto } from './dto/recipe.dto';
 
 import { RecipeService } from './recipe.service';
 
@@ -58,5 +59,13 @@ export class RecipeController {
       throw new NotFoundException('Recipe does not exist');
     }
     return updatedRecipe;
+  }
+
+  @Get('')
+  getUserRecipes(
+    @AuthorizedUser() user: UserInfoDto,
+    @Query() paginatedQueryDto: PaginatedQueryDto,
+  ): Promise<PaginatedResults<RecipeInfoDto>> {
+    return this.recipeService.getByOwnerId(user._id, paginatedQueryDto);
   }
 }

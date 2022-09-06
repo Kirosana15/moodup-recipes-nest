@@ -36,7 +36,7 @@ export class RecipeService {
     return paginate<RecipeDto>(page, limit, count, recipes);
   }
 
-  async getByOwnerId(id: string, paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<Recipe>> {
+  async getByOwnerId(id: string, paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<RecipeInfoDto>> {
     const { page, limit } = paginatedQueryDto;
     const countQuery = this.recipeModel.count({ ownerId: id });
     const recipeQuery = this.recipeModel

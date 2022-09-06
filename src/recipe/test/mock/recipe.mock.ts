@@ -6,6 +6,7 @@ export const mockTitle = () => faker.word.noun(20);
 export const mockImageUrl = faker.image.food;
 export const mockContent = () => faker.lorem.paragraph(4);
 export const mockId = faker.database.mongodbObjectId;
+export const mockPagination = (page = 1, limit = 10) => ({ page, limit });
 
 export const recipeMock = (recipe?: Partial<RecipeDto>): RecipeDto => ({
   _id: recipe?._id || mockId(),

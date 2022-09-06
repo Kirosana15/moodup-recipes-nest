@@ -36,6 +36,22 @@ export class RecipeService {
     return paginate<RecipeDto>(page, limit, count, recipes);
   }
 
+  async getByOwnerId(id: string, paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<Recipe>> {
+    const { page, limit } = paginatedQueryDto;
+    const countQuery = this.recipeModel.count({ ownerId: id });
+    const recipeQuery = this.recipeModel
+      .find({ ownerId: id })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    const [count, recipes] = await Promise.all([countQuery, recipeQuery]);
+
+    return paginate<RecipeDto>(page, limit, count, recipes);
+  }
+
   delete(id: string): Promise<RecipeDto | null> {
     return this.recipeModel.findByIdAndDelete(id).lean().exec();
   }

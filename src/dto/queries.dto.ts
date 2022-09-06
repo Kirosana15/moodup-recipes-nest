@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsNumber } from 'class-validator';
+
+import { paginationConfig } from '../config/configs/pagination';
 
 export class PaginatedQueryDto {
   @ApiProperty({ description: 'page number' })
   @IsNumber()
-  @IsOptional()
   @Type(() => Number)
-  page?: number;
+  page: number = paginationConfig().defaultPage;
 
   @ApiProperty({ description: 'this many results per page' })
   @IsNumber()
-  @IsOptional()
   @Type(() => Number)
-  limit?: number;
+  limit: number = paginationConfig().defaultLimit;
 }

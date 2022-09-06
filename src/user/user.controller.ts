@@ -15,7 +15,7 @@ export class UserController {
 
   @Get('/all')
   @Roles(RoleTypes.Admin)
-  getAllUsers(@Query() paginatedQueryDto?: PaginatedQueryDto): Promise<UserInfoDto[]> {
+  getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto) {
     return this.userService.getAll(paginatedQueryDto);
   }
 

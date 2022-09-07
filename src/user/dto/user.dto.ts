@@ -16,7 +16,8 @@ const password_message = [
   'password must contain one uppercase and one lowercase letter, one number, one special character',
 ];
 
-export class UserDto {
+export type UserDto = User;
+export class UserDtoB {
   @ApiProperty()
   id: string;
 
@@ -43,5 +44,5 @@ export class UserDto {
   createdAt: number;
 }
 
-export type UserInfoDto = Omit<User, 'password' | 'refreshToken'>;
-export type UserCredentialsDto = Pick<User, 'username' | 'password'>;
+export type UserInfoDto = Omit<UserDto, 'password' | 'refreshToken'>;
+export type UserCredentialsDto = Pick<UserDto, 'username' | 'password'>;

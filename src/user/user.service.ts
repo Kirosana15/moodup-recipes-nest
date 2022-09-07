@@ -20,18 +20,24 @@ export class UserService {
     return this.prisma.user.delete({ select, where });
   }
 
-  async user(where: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUniqueOrThrow({ where });
-  }
-
   async refreshToken(id: string, newToken: string): Promise<User> {
     return this.prisma.user.update({ data: { refreshToken: newToken }, where: { id } });
   }
 
-  users(paginatedQueryDto: PaginatedQueryDto, select?: Prisma.UserSelect, where?: Prisma.UserWhereInput) {
+  async user(where: Prisma.UserWhereUniqueInput): Promise<User | null> {
+    const user = this.prisma.user.findUnique({ where });
+    return user;
+  }
+
+  async users(paginatedQueryDto: PaginatedQueryDto, select?: Prisma.UserSelect, where?: Prisma.UserWhereInput) {
     const { page, limit } = paginatedQueryDto;
-    const take = limit || 10;
+    const take = limit;
     const skip = (page - 1) * take;
-    return this.prisma.user.findMany({ select, skip, take, where, orderBy: { id: 'asc' } });
+    const itemsQuery = this.prisma.user.findMany({ select, skip, take, where, orderBy: { id: 'asc' } });
+    const countQuery = this.prisma.user.count();
+
+    const [items, count] = await Promise.all([itemsQuery, countQuery]);
+
+    return paginate(page, limit, count, items);
   }
 }

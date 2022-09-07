@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, NotFoundException, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '../decorators/roles';
@@ -15,7 +15,7 @@ export class UserController {
 
   @Get('/all')
   @Roles(RoleTypes.Admin)
-  getAllUsers(@Query() paginatedQueryDto?: PaginatedQueryDto) {
+  getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto) {
     return this.userService.users(paginatedQueryDto);
   }
 
@@ -32,7 +32,11 @@ export class UserController {
   }
 
   @Get('/:id')
-  async getUser(@Param('id') id: string): Promise<UserInfoDto> {
-    return this.userService.user({ id });
+  async getUser(@Param('id') id: string): Promise<UserInfoDto | null> {
+    const user = this.userService.user({ id });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 }

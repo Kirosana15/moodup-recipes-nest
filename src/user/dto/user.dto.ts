@@ -1,4 +1,5 @@
-import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+import { Role, User } from '@prisma/client';
 import { Length, Matches } from 'class-validator';
 
 import { RoleTypes } from '../../auth/enums/roles';
@@ -17,7 +18,7 @@ const password_message = [
 
 export class UserDto {
   @ApiProperty()
-  _id: string;
+  id: string;
 
   @ApiProperty({ description: username_message.join(' and '), example: 'User_123' })
   @Length(4, 20)
@@ -33,7 +34,7 @@ export class UserDto {
   password: string;
 
   @ApiProperty({ type: 'enum', enum: RoleTypes, isArray: true, example: [RoleTypes.User] })
-  roles: RoleTypes[];
+  roles: Role[];
 
   @ApiProperty()
   refreshToken: string;
@@ -42,5 +43,5 @@ export class UserDto {
   createdAt: number;
 }
 
-export class UserInfoDto extends OmitType(UserDto, ['password', 'refreshToken']) {}
-export class UserCredentialsDto extends PickType(UserDto, ['username', 'password']) {}
+export type UserInfoDto = Omit<User, 'password' | 'refreshToken'>;
+export type UserCredentialsDto = Pick<User, 'username' | 'password'>;

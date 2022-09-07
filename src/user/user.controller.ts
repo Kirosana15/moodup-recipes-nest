@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, NotFoundException, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '../decorators/roles';
@@ -15,33 +15,24 @@ export class UserController {
 
   @Get('/all')
   @Roles(RoleTypes.Admin)
-  getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto) {
-    return this.userService.getAll(paginatedQueryDto);
+  getAllUsers(@Query() paginatedQueryDto?: PaginatedQueryDto) {
+    return this.userService.users(paginatedQueryDto);
   }
 
-  @Delete('/:_id')
+  @Delete('/:id')
   @UseGuards(OwnerGuard)
-  deleteUser(@Param('_id') id: string): Promise<UserInfoDto | null> {
-    const deletedUser = this.userService.delete(id);
-    if (!deletedUser) {
-      throw new NotFoundException('User with this id does not exist');
-    }
-    return deletedUser;
+  deleteUser(@Param('id') id: string): Promise<UserInfoDto> {
+    return this.userService.delete({ id });
   }
 
   @Get('/me')
   getUserProfile(@Req() req: any): UserInfoDto {
-    const { _id, username, roles, createdAt } = req.user;
-    const user: UserInfoDto = { _id, username, roles, createdAt };
-    return user;
+    const { id, username, roles, createdAt } = req.user;
+    return { id, username, roles, createdAt };
   }
 
   @Get('/:id')
-  async getUser(@Param('id') id: string) {
-    const user = await this.userService.getById(id);
-    if (!user) {
-      throw new NotFoundException('User with this id does not exist');
-    }
-    return user;
+  async getUser(@Param('id') id: string): Promise<UserInfoDto> {
+    return this.userService.user({ id });
   }
 }

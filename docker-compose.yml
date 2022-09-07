@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=recipesapi
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=nest
+    restart: always
+    ports:
+      - 5432:5432
+
+  admin:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

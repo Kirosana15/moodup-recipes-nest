@@ -7,6 +7,7 @@ import { PaginatedQueryDto } from '../dto/queries.dto';
 import { UserInfoDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { OwnerGuard } from '../auth/guards/owner.guard';
+import { PaginatedResults } from '../dto/paginatedResults.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -15,20 +16,20 @@ export class UserController {
 
   @Get('/all')
   @Roles(RoleTypes.Admin)
-  getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto) {
+  getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<UserInfoDto>> {
     return this.userService.users(paginatedQueryDto);
-  }
-
-  @Delete('/:id')
-  @UseGuards(OwnerGuard)
-  deleteUser(@Param('id') id: string) {
-    return this.userService.delete({ id });
   }
 
   @Get('/me')
   getUserProfile(@Req() req: any): UserInfoDto {
     const { id, username, roles, createdAt } = req.user;
     return { id, username, roles, createdAt };
+  }
+
+  @Delete('/:id')
+  @UseGuards(OwnerGuard)
+  deleteUser(@Param('id') id: string): Promise<UserInfoDto> {
+    return this.userService.delete({ id });
   }
 
   @Get('/:id')

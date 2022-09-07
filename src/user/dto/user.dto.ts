@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Role, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { Length, Matches } from 'class-validator';
 
 import { RoleTypes } from '../../auth/enums/roles';
@@ -15,9 +15,7 @@ const password_message = [
   'Password must have from 8 to 50 characters',
   'password must contain one uppercase and one lowercase letter, one number, one special character',
 ];
-
-export type UserDto = User;
-export class UserDtoB {
+export class UserDto {
   @ApiProperty()
   id: string;
 
@@ -41,7 +39,7 @@ export class UserDtoB {
   refreshToken: string;
 
   @ApiProperty({ example: Date.now() })
-  createdAt: number;
+  createdAt: Date;
 }
 
 export type UserInfoDto = Omit<UserDto, 'password' | 'refreshToken'>;

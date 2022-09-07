@@ -21,7 +21,7 @@ export class UserController {
 
   @Delete('/:id')
   @UseGuards(OwnerGuard)
-  deleteUser(@Param('id') id: string): Promise<UserInfoDto> {
+  deleteUser(@Param('id') id: string) {
     return this.userService.delete({ id });
   }
 
@@ -32,7 +32,7 @@ export class UserController {
   }
 
   @Get('/:id')
-  async getUser(@Param('id') id: string): Promise<UserInfoDto | null> {
+  async getUser(@Param('id') id: string) {
     const user = this.userService.user({ id });
     if (!user) {
       throw new NotFoundException('User not found');

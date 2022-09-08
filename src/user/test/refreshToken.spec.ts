@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 
 import { closeConnections } from '../../../test/mock/db.mock';
 import { createModule } from '../../../test/test.setup';
-import { User } from '../user.schema';
+import { User, UserSchema } from '../user.schema';
 import { UserService } from '../user.service';
 import { mockCredentials, mockId } from './mock/user.model.mock';
 
@@ -14,7 +14,7 @@ describe('UserService.refreshToken()', () => {
   let module: TestingModule;
 
   beforeAll(async () => {
-    module = await createModule({ providers: [UserService] });
+    module = await createModule({ providers: [UserService], model: [{ name: User.name, schema: UserSchema }] });
 
     service = module.get(UserService);
     userModel = module.get(getModelToken(User.name));

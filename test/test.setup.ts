@@ -1,17 +1,16 @@
 import { DynamicModule, ForwardReference, ModuleMetadata, Type } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { User, UserSchema } from '../src/user/user.schema';
 import { rootMongooseTestModule } from './mock/db.mock';
 
 export const createModule = async (metadata?: CustomModuleMetadata): Promise<TestingModule> => {
-  const imports: Array<Type<any> | DynamicModule | Promise<DynamicModule> | ForwardReference> = [
-    rootMongooseTestModule(),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ];
-  if (metadata?.imports !== undefined) {
-    imports.concat(metadata.imports);
+  const imports: Array<Type<any> | DynamicModule | Promise<DynamicModule> | ForwardReference> = [];
+  if (metadata?.controllers === undefined) {
+    imports.push(rootMongooseTestModule(), MongooseModule.forFeature(metadata?.model));
+    if (metadata?.imports !== undefined) {
+      imports.concat(metadata.imports);
+    }
   }
   const module = Test.createTestingModule({
     imports,
@@ -27,4 +26,5 @@ export const createModule = async (metadata?: CustomModuleMetadata): Promise<Tes
 
 export interface CustomModuleMetadata extends ModuleMetadata {
   providerOverrides?: { provider: Type<any>; mock: { [key: string]: jest.Mock } }[];
+  model?: ModelDefinition[];
 }

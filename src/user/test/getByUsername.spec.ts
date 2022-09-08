@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 
 import { closeConnections } from '../../../test/mock/db.mock';
 import { createModule } from '../../../test/test.setup';
-import { User, UserDocument } from '../user.schema';
+import { User, UserDocument, UserSchema } from '../user.schema';
 import { UserService } from '../user.service';
 import { generateUserFromDb, mockUsername } from './mock/user.model.mock';
 
@@ -15,7 +15,7 @@ describe('UserService.getByUsername()', () => {
   let module: TestingModule;
 
   beforeAll(async () => {
-    module = await createModule({ providers: [UserService] });
+    module = await createModule({ providers: [UserService], model: [{ name: User.name, schema: UserSchema }] });
 
     service = module.get(UserService);
     userModel = module.get(getModelToken(User.name));

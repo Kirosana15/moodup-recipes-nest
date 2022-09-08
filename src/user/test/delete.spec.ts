@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { closeConnections } from '../../../test/mock/db.mock';
 import { createModule } from '../../../test/test.setup';
 import { UserDto } from '../dto/user.dto';
-import { User, UserDocument } from '../user.schema';
+import { User, UserDocument, UserSchema } from '../user.schema';
 import { UserService } from '../user.service';
 import { generateUserFromDb, mockId } from './mock/user.model.mock';
 
@@ -16,7 +16,7 @@ describe('UserService.delete()', () => {
   let module: TestingModule;
 
   beforeAll(async () => {
-    module = await createModule({ providers: [UserService] });
+    module = await createModule({ providers: [UserService], model: [{ name: User.name, schema: UserSchema }] });
     service = await module.get(UserService);
     userModel = await module.get(getModelToken(User.name));
   });

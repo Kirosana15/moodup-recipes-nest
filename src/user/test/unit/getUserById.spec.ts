@@ -3,10 +3,10 @@ import { TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 
 import { closeConnections } from '../../../../test/mock/db.mock';
-import { createModule } from '../../../../test/test.setup';
-import { User, UserDocument, UserSchema } from '../../user.schema';
+import { User, UserDocument } from '../../user.schema';
 import { UserService } from '../../user.service';
 import { generateUserFromDb, mockId } from '../mock/user.model.mock';
+import { setupModule } from './setup';
 
 describe('UserService.getById()', () => {
   let service: UserService;
@@ -15,7 +15,7 @@ describe('UserService.getById()', () => {
   let module: TestingModule;
 
   beforeAll(async () => {
-    module = await createModule({ providers: [UserService], model: [{ name: User.name, schema: UserSchema }] });
+    module = await setupModule();
 
     service = module.get(UserService);
     userModel = module.get(getModelToken(User.name));

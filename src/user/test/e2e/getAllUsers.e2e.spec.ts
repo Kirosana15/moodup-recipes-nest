@@ -1,16 +1,13 @@
-import { ExecutionContext, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { NestApplication } from '@nestjs/core';
 import { TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { createApp } from '../../../../test/e2e.setup';
-import { createModule } from '../../../../test/test.setup';
 import { RoleTypes } from '../../../auth/enums/roles';
 import { UserDto, UserInfoDto } from '../../dto/user.dto';
-import { UserController } from '../../user.controller';
 import { UserService } from '../../user.service';
 import { generateUserFromDb } from '../mock/user.model.mock';
-import { mockUserService } from '../mock/user.service.mock';
+import { MockGuards, setupApp, setupModule } from './setup';
 
 describe('POST /login', () => {
   let service: UserService;
@@ -22,23 +19,11 @@ describe('POST /login', () => {
   beforeAll(async () => {
     mockUser = generateUserFromDb({ roles: [RoleTypes.User, RoleTypes.Admin] });
 
-    module = await createModule({
-      providers: [UserService],
-      controllers: [UserController],
-      providerOverrides: [{ provider: UserService, mock: mockUserService }],
-    });
+    module = await setupModule();
+    app = await setupApp(module, MockGuards.AdminOnly);
 
-    const guardMock = {
-      canActivate: (context: ExecutionContext) => {
-        const req = context.switchToHttp().getRequest();
-        req.user = req.body;
-        return req.body.roles.includes(RoleTypes.Admin);
-      },
-    };
+    service = module.get(UserService);
 
-    app = await createApp(module, { globalGuards: [guardMock] });
-
-    service = module.get<UserService>(UserService);
     getAllSpy = jest.spyOn(service, 'getAll');
   });
 
@@ -50,7 +35,10 @@ describe('POST /login', () => {
     const TESTING_PATH = '/user/all';
 
     it(`should return ${HttpStatus.OK} and a list of all users`, async () => {
-      const res = await request(app.getHttpServer()).get(TESTING_PATH).send(mockUser).expect(HttpStatus.OK);
+      const res = await request(app.getHttpServer())
+        .get(TESTING_PATH)
+        .set('authorization', JSON.stringify(mockUser))
+        .expect(HttpStatus.OK);
       const users = res.body;
       expect(users).toHaveLength(10);
       users.forEach((user: UserInfoDto) => {
@@ -62,13 +50,13 @@ describe('POST /login', () => {
     it(`should return ${HttpStatus.FORBIDDEN} when user is not an admin`, async () => {
       await request(app.getHttpServer())
         .get(TESTING_PATH)
-        .send({ ...mockUser, roles: [RoleTypes.User] })
+        .set('authorization', JSON.stringify({ ...mockUser, roles: [RoleTypes.User] }))
         .expect(HttpStatus.FORBIDDEN);
     });
     it(`should return ${HttpStatus.OK} and page $page of users`, async () => {
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
-        .send(mockUser)
+        .set('authorization', JSON.stringify(mockUser))
         .query({ page: 2 })
         .expect(HttpStatus.OK);
       const users = res.body;
@@ -78,7 +66,7 @@ describe('POST /login', () => {
     it(`should return ${HttpStatus.OK} and $limit amount of users`, async () => {
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
-        .send(mockUser)
+        .set('authorization', JSON.stringify(mockUser))
         .query({ limit: 10 })
         .expect(HttpStatus.OK);
       const users = res.body;
@@ -88,7 +76,7 @@ describe('POST /login', () => {
     it(`should return ${HttpStatus.BAD_REQUEST} when page is not a number`, async () => {
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
-        .send(mockUser)
+        .set('authorization', JSON.stringify(mockUser))
         .query({ page: 'two' })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body.message[0]).toMatch('page must be a number');
@@ -97,7 +85,7 @@ describe('POST /login', () => {
     it(`should return ${HttpStatus.BAD_REQUEST} when limit is not a number`, async () => {
       const res = await request(app.getHttpServer())
         .get(TESTING_PATH)
-        .send(mockUser)
+        .set('authorization', JSON.stringify(mockUser))
         .query({ limit: 'two' })
         .expect(HttpStatus.BAD_REQUEST);
       expect(res.body.message[0]).toMatch('limit must be a number');

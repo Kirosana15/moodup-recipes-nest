@@ -1,15 +1,12 @@
-import { ExecutionContext, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { NestApplication } from '@nestjs/core';
 import { TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { createApp } from '../../../../test/e2e.setup';
-import { createModule } from '../../../../test/test.setup';
 import { UserInfoDto } from '../../dto/user.dto';
-import { UserController } from '../../user.controller';
-import { UserService } from '../../user.service';
 import { generateUser } from '../mock/user.model.mock';
 import { mockUserService } from '../mock/user.service.mock';
+import { MockGuards, setupApp, setupModule } from './setup';
 
 describe('user', () => {
   let app: NestApplication;
@@ -18,24 +15,8 @@ describe('user', () => {
 
   beforeAll(async () => {
     mockUser = generateUser();
-
-    module = await createModule({
-      providers: [UserService],
-      controllers: [UserController],
-      providerOverrides: [{ provider: UserService, mock: mockUserService }],
-    });
-
-    const guardMock = {
-      canActivate(context: ExecutionContext) {
-        const req = context.switchToHttp().getRequest();
-        if (!req.headers['authorization']) {
-          return false;
-        }
-        return true;
-      },
-    };
-
-    app = await createApp(module, { globalGuards: [guardMock] });
+    module = await setupModule();
+    app = await setupApp(module, MockGuards.Simple);
   });
 
   afterAll(async () => {
@@ -48,7 +29,7 @@ describe('user', () => {
     it(`should return ${HttpStatus.OK} and user information`, async () => {
       const res = await request(app.getHttpServer())
         .get(`${TEST_PATH}${mockUser._id}`)
-        .set('Authorization', 'token')
+        .set('Authorization', JSON.stringify(mockUser))
         .expect(HttpStatus.OK);
       expect(res.body._id).toEqual(mockUser._id);
     });
@@ -61,7 +42,7 @@ describe('user', () => {
       mockUserService.getById.mockReturnValueOnce(null);
       await request(app.getHttpServer())
         .get(`${TEST_PATH}${mockUser._id}`)
-        .set('Authorization', 'token')
+        .set('Authorization', JSON.stringify(mockUser))
         .expect(HttpStatus.NOT_FOUND);
     });
   });

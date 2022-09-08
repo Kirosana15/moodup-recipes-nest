@@ -7,8 +7,10 @@ import { UserService } from '../../user.service';
 
 export const setupModule = (overrideMetadata?: CustomModuleMetadata) => {
   const metadata = {
-    providers: [UserService],
-    imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
+    moduleMetadata: {
+      providers: [UserService],
+      imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
+    },
     ...overrideMetadata,
   };
   return createModule(metadata);

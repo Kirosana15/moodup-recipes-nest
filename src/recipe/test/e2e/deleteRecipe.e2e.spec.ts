@@ -36,7 +36,7 @@ describe('recipe', () => {
       await sendRequest(app, 'delete', TEST_PATH, HttpStatus.NOT_FOUND, mockUser);
     });
     it(`should return ${HttpStatus.FORBIDDEN} if user is not an owner of a recipe`, async () => {
-      await sendRequest(app, 'delete', `/recipe/${mockId()}`, HttpStatus.NOT_FOUND, mockUser);
+      await sendRequest(app, 'delete', `/recipe/${mockId()}`, HttpStatus.FORBIDDEN, mockUser);
     });
   });
 });

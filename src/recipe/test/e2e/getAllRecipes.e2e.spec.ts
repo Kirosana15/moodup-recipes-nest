@@ -17,7 +17,7 @@ describe('recipe', () => {
 
   beforeAll(async () => {
     module = await setupModule();
-    app = await setupApp(module, MockGuards.Simple);
+    app = await setupApp(module, MockGuards.AdminOnly);
   });
 
   afterAll(async () => {
@@ -46,15 +46,15 @@ describe('recipe', () => {
     });
 
     it(`should return ${HttpStatus.BAD_REQUEST} when page is not a number`, async () => {
-      await sendRequest(app, 'get', TEST_PATH, HttpStatus.FORBIDDEN, mockUser, { page: 'two' });
+      await sendRequest(app, 'get', TEST_PATH, HttpStatus.BAD_REQUEST, mockUser, { page: 'two' });
     });
 
     it(`should return ${HttpStatus.BAD_REQUEST} when limit is not a number`, async () => {
-      await sendRequest(app, 'get', TEST_PATH, HttpStatus.FORBIDDEN, mockUser, { limit: 'two' });
+      await sendRequest(app, 'get', TEST_PATH, HttpStatus.BAD_REQUEST, mockUser, { limit: 'two' });
     });
 
     it('should return paginated list', async () => {
-      const res = await sendRequest(app, 'get', TEST_PATH, HttpStatus.FORBIDDEN, mockUser, { limit: 5 });
+      const res = await sendRequest(app, 'get', TEST_PATH, HttpStatus.OK, mockUser, { limit: 5 });
       const { pagination, items }: PaginatedResults<RecipeInfoDto> = res.body;
       expect(items).toBeDefined();
       expect(items).toHaveLength(5);

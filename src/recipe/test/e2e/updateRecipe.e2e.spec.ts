@@ -43,7 +43,7 @@ describe('recipe', () => {
 
     it(`should return ${HttpStatus.FORBIDDEN} when user is not authorized to update recipe`, async () => {
       const idMock = mockId();
-      await sendRequest(app, 'patch', `/recipe/${idMock}`, HttpStatus.OK, mockUser);
+      await sendRequest(app, 'patch', `/recipe/${idMock}`, HttpStatus.FORBIDDEN, mockUser);
     });
   });
 });

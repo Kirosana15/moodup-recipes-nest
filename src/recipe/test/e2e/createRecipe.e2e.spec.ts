@@ -3,7 +3,6 @@ import { NestApplication } from '@nestjs/core';
 import { TestingModule } from '@nestjs/testing';
 
 import { sendRequest } from '../../../../test/helpers/request';
-import { closeConnections } from '../../../../test/mock/db.mock';
 import { MockGuards } from '../../../auth/guards/mock/guards';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 import { RecipeDto } from '../../dto/recipe.dto';
@@ -22,8 +21,8 @@ describe('recipe', () => {
   });
 
   afterAll(async () => {
-    await closeConnections();
     await module.close();
+    await app.close();
   });
 
   describe('/POST', () => {

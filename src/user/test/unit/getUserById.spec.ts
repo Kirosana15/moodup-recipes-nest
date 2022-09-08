@@ -2,11 +2,11 @@ import { getModelToken } from '@nestjs/mongoose';
 import { TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 
-import { closeConnections } from '../../../test/mock/db.mock';
-import { createModule } from '../../../test/test.setup';
-import { User, UserDocument, UserSchema } from '../user.schema';
-import { UserService } from '../user.service';
-import { generateUserFromDb, mockId } from './mock/user.model.mock';
+import { closeConnections } from '../../../../test/mock/db.mock';
+import { createModule } from '../../../../test/test.setup';
+import { User, UserDocument, UserSchema } from '../../user.schema';
+import { UserService } from '../../user.service';
+import { generateUserFromDb, mockId } from '../mock/user.model.mock';
 
 describe('UserService.getById()', () => {
   let service: UserService;

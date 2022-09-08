@@ -2,11 +2,11 @@ import { getModelToken } from '@nestjs/mongoose';
 import { TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 
-import { closeConnections } from '../../../test/mock/db.mock';
-import { createModule } from '../../../test/test.setup';
-import { User, UserSchema } from '../user.schema';
-import { UserService } from '../user.service';
-import { mockCredentials, mockId } from './mock/user.model.mock';
+import { closeConnections } from '../../../../test/mock/db.mock';
+import { createModule } from '../../../../test/test.setup';
+import { User, UserSchema } from '../../user.schema';
+import { UserService } from '../../user.service';
+import { mockCredentials, mockId } from '../mock/user.model.mock';
 
 describe('UserService.refreshToken()', () => {
   let service: UserService;

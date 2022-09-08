@@ -1,39 +1,24 @@
-import { ExecutionContext, HttpStatus, INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import request from 'supertest';
+import { HttpStatus } from '@nestjs/common';
+import { NestApplication } from '@nestjs/core';
+import { TestingModule } from '@nestjs/testing';
 
-import { BearerAuthGuard } from '../../../auth/guards/bearer.guard';
-import { closeConnections, rootMongooseTestModule } from '../../../mock/db.mock';
+import { sendRequest } from '../../../../test/helpers/request';
+import { closeConnections } from '../../../../test/mock/db.mock';
+import { MockGuards } from '../../../auth/guards/mock/guards';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
-import { RecipeModule } from '../../recipe.module';
-import { RecipeService } from '../../recipe.service';
 import { mockId } from '../mock/recipe.mock';
 import { mockRecipeService } from '../mock/recipeService.mock';
+import { setupApp, setupModule } from './setup';
 
 describe('recipe', () => {
-  let app: INestApplication;
+  let app: NestApplication;
   const recipeService = mockRecipeService;
   const mockUser = generateUserFromDb();
   let module: TestingModule;
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
-      imports: [rootMongooseTestModule(), RecipeModule],
-    })
-      .overrideProvider(RecipeService)
-      .useValue(recipeService)
-      .overrideGuard(BearerAuthGuard)
-      .useValue({
-        canActivate(context: ExecutionContext) {
-          const req = context.switchToHttp().getRequest();
-          req.user = mockUser;
-          return true;
-        },
-      })
-      .compile();
-
-    app = module.createNestApplication();
-    await app.init();
+    module = await setupModule();
+    app = await setupApp(module, MockGuards.Simple);
   });
 
   afterAll(async () => {
@@ -42,9 +27,10 @@ describe('recipe', () => {
   });
 
   describe('/GET :id', () => {
+    const idMock = mockId();
+    const TEST_PATH = `/recipe/${idMock}`;
     it('should return a recipe with specified id', async () => {
-      const idMock = mockId();
-      const res = await request(app.getHttpServer()).get(`/recipe/${idMock}`).expect(HttpStatus.OK);
+      const res = await sendRequest(app, 'get', TEST_PATH, HttpStatus.OK, mockUser);
       expect(res.body).toBeDefined();
       expect(res.body._id).toEqual(idMock);
       expect(recipeService.getById).toBeCalledTimes(1);

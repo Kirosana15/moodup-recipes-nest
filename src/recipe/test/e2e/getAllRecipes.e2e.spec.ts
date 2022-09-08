@@ -1,55 +1,39 @@
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import request from 'supertest';
+import { HttpStatus } from '@nestjs/common';
+import { NestApplication } from '@nestjs/core';
+import { TestingModule } from '@nestjs/testing';
 
+import { sendRequest } from '../../../../test/helpers/request';
 import { RoleTypes } from '../../../auth/enums/roles';
+import { MockGuards } from '../../../auth/guards/mock/guards';
 import { PaginatedResults } from '../../../dto/paginatedResults.dto';
-import { closeConnections, rootMongooseTestModule } from '../../../mock/db.mock';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
 import { RecipeInfoDto } from '../../dto/recipe.dto';
-import { RecipeModule } from '../../recipe.module';
-import { RecipeService } from '../../recipe.service';
-import { mockRecipeService } from '../mock/recipeService.mock';
+import { setupApp, setupModule } from './setup';
 
 describe('recipe', () => {
-  let app: INestApplication;
-  const recipeService = mockRecipeService;
+  let app: NestApplication;
   const mockUser = generateUserFromDb();
   let module: TestingModule;
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
-      imports: [rootMongooseTestModule(), RecipeModule],
-    })
-      .overrideProvider(RecipeService)
-      .useValue(recipeService)
-      .compile();
-
-    app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
-    app.useGlobalGuards({
-      canActivate(context) {
-        const req = context.switchToHttp().getRequest();
-        req.user = mockUser;
-        return mockUser.roles.includes(RoleTypes.Admin);
-      },
-    });
-    await app.init();
+    module = await setupModule();
+    app = await setupApp(module, MockGuards.Simple);
   });
 
   afterAll(async () => {
-    await closeConnections();
     await module.close();
+    await app.close();
   });
 
   describe('/GET all', () => {
+    const TEST_PATH = '/recipe/all';
     it('should require user to be an admin', async () => {
-      await request(app.getHttpServer()).get('/recipe/all').expect(HttpStatus.FORBIDDEN);
+      await sendRequest(app, 'get', TEST_PATH, HttpStatus.FORBIDDEN, mockUser);
     });
 
     it('should return list of all recipes', async () => {
       mockUser.roles.push(RoleTypes.Admin);
-      const res = await request(app.getHttpServer()).get('/recipe/all').expect(HttpStatus.OK);
+      const res = await sendRequest(app, 'get', TEST_PATH, HttpStatus.OK, mockUser);
       expect(res.body).toBeDefined();
       const { pagination, items }: PaginatedResults<RecipeInfoDto> = res.body;
       expect(items).toHaveLength(10);
@@ -62,15 +46,15 @@ describe('recipe', () => {
     });
 
     it(`should return ${HttpStatus.BAD_REQUEST} when page is not a number`, async () => {
-      await request(app.getHttpServer()).get('/recipe/all?page=page').expect(HttpStatus.BAD_REQUEST);
+      await sendRequest(app, 'get', TEST_PATH, HttpStatus.FORBIDDEN, mockUser, { page: 'two' });
     });
 
     it(`should return ${HttpStatus.BAD_REQUEST} when limit is not a number`, async () => {
-      await request(app.getHttpServer()).get('/recipe/all?limit=limit').expect(HttpStatus.BAD_REQUEST);
+      await sendRequest(app, 'get', TEST_PATH, HttpStatus.FORBIDDEN, mockUser, { limit: 'two' });
     });
 
     it('should return paginated list', async () => {
-      const res = await request(app.getHttpServer()).get('/recipe/all?limit=5').expect(HttpStatus.OK);
+      const res = await sendRequest(app, 'get', TEST_PATH, HttpStatus.FORBIDDEN, mockUser, { limit: 5 });
       const { pagination, items }: PaginatedResults<RecipeInfoDto> = res.body;
       expect(items).toBeDefined();
       expect(items).toHaveLength(5);

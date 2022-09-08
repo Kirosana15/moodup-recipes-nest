@@ -11,6 +11,7 @@ export const sendRequest = async (
   status: HttpStatus,
   user?: Partial<UserDto>,
   query?: Record<string, unknown>,
+  body?: string | object,
 ) => {
   const req = request(app.getHttpServer());
   let call: request.Test;
@@ -36,6 +37,9 @@ export const sendRequest = async (
   }
   if (query) {
     call.query(query);
+  }
+  if (body) {
+    call.send(body);
   }
   return call.expect(status);
 };

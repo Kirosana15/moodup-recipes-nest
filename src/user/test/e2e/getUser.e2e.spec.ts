@@ -3,9 +3,10 @@ import { NestApplication } from '@nestjs/core';
 import { TestingModule } from '@nestjs/testing';
 
 import { sendRequest } from '../../../../test/helpers/request';
+import { MockGuards } from '../../../auth/guards/mock/guards';
 import { generateUser } from '../mock/user.model.mock';
 import { mockUserService } from '../mock/user.service.mock';
-import { MockGuards, setupApp, setupModule } from './setup';
+import { setupApp, setupModule } from './setup';
 
 describe('user', () => {
   let app: NestApplication;

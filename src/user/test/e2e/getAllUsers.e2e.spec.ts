@@ -4,10 +4,11 @@ import { TestingModule } from '@nestjs/testing';
 
 import { sendRequest } from '../../../../test/helpers/request';
 import { RoleTypes } from '../../../auth/enums/roles';
+import { MockGuards } from '../../../auth/guards/mock/guards';
 import { UserInfoDto } from '../../dto/user.dto';
 import { UserService } from '../../user.service';
 import { generateUserFromDb } from '../mock/user.model.mock';
-import { MockGuards, setupApp, setupModule } from './setup';
+import { setupApp, setupModule } from './setup';
 
 describe('POST /login', () => {
   let service: UserService;

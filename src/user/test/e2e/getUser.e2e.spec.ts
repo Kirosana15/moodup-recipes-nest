@@ -3,18 +3,16 @@ import { NestApplication } from '@nestjs/core';
 import { TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
-import { UserInfoDto } from '../../dto/user.dto';
 import { generateUser } from '../mock/user.model.mock';
 import { mockUserService } from '../mock/user.service.mock';
 import { MockGuards, setupApp, setupModule } from './setup';
 
 describe('user', () => {
   let app: NestApplication;
-  let mockUser: UserInfoDto;
   let module: TestingModule;
+  const mockUser = generateUser();
 
   beforeAll(async () => {
-    mockUser = generateUser();
     module = await setupModule();
     app = await setupApp(module, MockGuards.Simple);
   });

@@ -4,18 +4,16 @@ import { TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
 import { RoleTypes } from '../../../auth/enums/roles';
-import { UserDto } from '../../dto/user.dto';
 import { generateUserFromDb, mockId } from '../mock/user.model.mock';
 import { mockUserService } from '../mock/user.service.mock';
 import { MockGuards, setupApp, setupModule } from './setup';
 
 describe('user', () => {
   let app: NestApplication;
-  let mockUser: UserDto;
   let module: TestingModule;
+  const mockUser = generateUserFromDb({ roles: [RoleTypes.User] });
 
   beforeAll(async () => {
-    mockUser = generateUserFromDb({ roles: [RoleTypes.User] });
     module = await setupModule();
     app = await setupApp(module, MockGuards.Owner);
   });

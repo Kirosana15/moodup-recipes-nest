@@ -4,7 +4,7 @@ import { TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
 import { RoleTypes } from '../../../auth/enums/roles';
-import { UserDto, UserInfoDto } from '../../dto/user.dto';
+import { UserInfoDto } from '../../dto/user.dto';
 import { UserService } from '../../user.service';
 import { generateUserFromDb } from '../mock/user.model.mock';
 import { MockGuards, setupApp, setupModule } from './setup';
@@ -13,12 +13,10 @@ describe('POST /login', () => {
   let service: UserService;
   let app: NestApplication;
   let getAllSpy: jest.SpyInstance;
-  let mockUser: UserDto;
   let module: TestingModule;
+  const mockUser = generateUserFromDb({ roles: [RoleTypes.User, RoleTypes.Admin] });
 
   beforeAll(async () => {
-    mockUser = generateUserFromDb({ roles: [RoleTypes.User, RoleTypes.Admin] });
-
     module = await setupModule();
     app = await setupApp(module, MockGuards.AdminOnly);
 

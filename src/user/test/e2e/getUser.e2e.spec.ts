@@ -1,8 +1,10 @@
-import { ExecutionContext, HttpStatus, ValidationPipe } from '@nestjs/common';
+import { ExecutionContext, HttpStatus } from '@nestjs/common';
 import { NestApplication } from '@nestjs/core';
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
+import { createApp } from '../../../../test/e2e.setup';
+import { createModule } from '../../../../test/test.setup';
 import { UserInfoDto } from '../../dto/user.dto';
 import { UserController } from '../../user.controller';
 import { UserService } from '../../user.service';
@@ -16,19 +18,14 @@ describe('user', () => {
 
   beforeAll(async () => {
     mockUser = generateUser();
-    module = await Test.createTestingModule({
-      imports: [],
+
+    module = await createModule({
+      providers: [UserService],
       controllers: [UserController],
-      providers: [
-        {
-          provide: UserService,
-          useValue: mockUserService,
-        },
-      ],
-    }).compile();
-    app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
-    app.useGlobalGuards({
+      providerOverrides: [{ provider: UserService, mock: mockUserService }],
+    });
+
+    const guardMock = {
       canActivate(context: ExecutionContext) {
         const req = context.switchToHttp().getRequest();
         if (!req.headers['authorization']) {
@@ -36,15 +33,18 @@ describe('user', () => {
         }
         return true;
       },
-    });
-    await app.init();
+    };
+
+    app = await createApp(module, { guards: [guardMock] });
   });
+
   afterAll(async () => {
     await module.close();
   });
 
   describe('/GET :id', () => {
     const TEST_PATH = '/user/';
+
     it(`should return ${HttpStatus.OK} and user information`, async () => {
       const res = await request(app.getHttpServer())
         .get(`${TEST_PATH}${mockUser._id}`)

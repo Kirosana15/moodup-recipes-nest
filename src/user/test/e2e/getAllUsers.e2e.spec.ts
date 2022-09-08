@@ -1,8 +1,10 @@
-import { ExecutionContext, HttpStatus, ValidationPipe } from '@nestjs/common';
+import { ExecutionContext, HttpStatus } from '@nestjs/common';
 import { NestApplication } from '@nestjs/core';
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
+import { createApp } from '../../../../test/e2e.setup';
+import { createModule } from '../../../../test/test.setup';
 import { RoleTypes } from '../../../auth/enums/roles';
 import { UserDto, UserInfoDto } from '../../dto/user.dto';
 import { UserController } from '../../user.controller';
@@ -19,28 +21,25 @@ describe('POST /login', () => {
 
   beforeAll(async () => {
     mockUser = generateUserFromDb({ roles: [RoleTypes.User, RoleTypes.Admin] });
-    module = await Test.createTestingModule({
-      imports: [],
+
+    module = await createModule({
+      providers: [UserService],
       controllers: [UserController],
-      providers: [
-        {
-          provide: UserService,
-          useValue: mockUserService,
-        },
-      ],
-    }).compile();
-    service = module.get<UserService>(UserService);
-    getAllSpy = jest.spyOn(service, 'getAll');
-    app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
-    app.useGlobalGuards({
+      providerOverrides: [{ provider: UserService, mock: mockUserService }],
+    });
+
+    const guardMock = {
       canActivate: (context: ExecutionContext) => {
         const req = context.switchToHttp().getRequest();
         req.user = req.body;
         return req.body.roles.includes(RoleTypes.Admin);
       },
-    });
-    await app.init();
+    };
+
+    app = await createApp(module, { guards: [guardMock] });
+
+    service = module.get<UserService>(UserService);
+    getAllSpy = jest.spyOn(service, 'getAll');
   });
 
   afterAll(async () => {

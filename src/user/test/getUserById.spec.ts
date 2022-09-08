@@ -1,9 +1,10 @@
-import { MongooseModule, getModelToken } from '@nestjs/mongoose';
-import { Test, TestingModule } from '@nestjs/testing';
+import { getModelToken } from '@nestjs/mongoose';
+import { TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 
-import { closeConnections, rootMongooseTestModule } from '../../mock/db.mock';
-import { User, UserDocument, UserSchema } from '../user.schema';
+import { closeConnections } from '../../../test/mock/db.mock';
+import { createModule } from '../../../test/test.setup';
+import { User, UserDocument } from '../user.schema';
 import { UserService } from '../user.service';
 import { generateUserFromDb, mockId } from './mock/user.model.mock';
 
@@ -14,11 +15,7 @@ describe('UserService.getById()', () => {
   let module: TestingModule;
 
   beforeAll(async () => {
-    jest.clearAllMocks();
-    module = await Test.createTestingModule({
-      imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
-      providers: [UserService],
-    }).compile();
+    module = await createModule({ providers: [UserService] });
 
     service = module.get(UserService);
     userModel = module.get(getModelToken(User.name));

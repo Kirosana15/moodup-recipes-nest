@@ -1,8 +1,10 @@
-import { ExecutionContext, HttpStatus, ValidationPipe } from '@nestjs/common';
+import { ExecutionContext, HttpStatus } from '@nestjs/common';
 import { NestApplication } from '@nestjs/core';
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
+import { createApp } from '../../../../test/e2e.setup';
+import { createModule } from '../../../../test/test.setup';
 import { RoleTypes } from '../../../auth/enums/roles';
 import { UserDto } from '../../dto/user.dto';
 import { UserController } from '../../user.controller';
@@ -17,24 +19,22 @@ describe('user', () => {
 
   beforeAll(async () => {
     mockUser = generateUserFromDb({ roles: [RoleTypes.User] });
-    module = await Test.createTestingModule({
-      controllers: [UserController],
+    module = await createModule({
       providers: [UserService],
-    })
-      .overrideProvider(UserService)
-      .useValue(mockUserService)
-      .compile();
-    app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
-    app.useGlobalGuards({
+      controllers: [UserController],
+      providerOverrides: [{ provider: UserService, mock: mockUserService }],
+    });
+
+    const guardMock = {
       canActivate: (context: ExecutionContext) => {
         const req = context.switchToHttp().getRequest();
         req.user = mockUser;
         const id = req.params._id;
         return mockUser._id === id;
       },
-    });
-    await app.init();
+    };
+
+    app = await createApp(module, { guards: [guardMock] });
   });
 
   afterAll(async () => {

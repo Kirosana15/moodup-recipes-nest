@@ -34,7 +34,7 @@ describe('user', () => {
       },
     };
 
-    app = await createApp(module, { guards: [guardMock] });
+    app = await createApp(module, { globalGuards: [guardMock] });
   });
 
   afterAll(async () => {

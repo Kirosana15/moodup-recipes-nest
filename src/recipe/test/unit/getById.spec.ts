@@ -1,11 +1,12 @@
-import { MongooseModule, getModelToken } from '@nestjs/mongoose';
-import { Test, TestingModule } from '@nestjs/testing';
+import { getModelToken } from '@nestjs/mongoose';
+import { TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
 
-import { closeConnections, rootMongooseTestModule } from '../../mock/db.mock';
-import { Recipe, RecipeDocument, RecipeSchema } from '../recipe.schema';
-import { RecipeService } from '../recipe.service';
-import { mockId, recipeMock } from './mock/recipe.mock';
+import { closeConnections } from '../../../../test/mock/db.mock';
+import { Recipe, RecipeDocument } from '../../recipe.schema';
+import { RecipeService } from '../../recipe.service';
+import { mockId, recipeMock } from '../mock/recipe.mock';
+import { setupModule } from './setup';
 
 describe('RecipeService.getById()', () => {
   let service: RecipeService;
@@ -14,11 +15,7 @@ describe('RecipeService.getById()', () => {
   let module: TestingModule;
 
   beforeAll(async () => {
-    jest.clearAllMocks();
-    module = await Test.createTestingModule({
-      imports: [rootMongooseTestModule(), MongooseModule.forFeature([{ name: Recipe.name, schema: RecipeSchema }])],
-      providers: [RecipeService],
-    }).compile();
+    module = await setupModule();
 
     service = module.get(RecipeService);
     recipeModel = module.get(getModelToken(Recipe.name));

@@ -1,12 +1,9 @@
 import { ConflictException } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { Test, TestingModule } from '@nestjs/testing';
 
 import { mockCredentials, mockPassword } from '../../../user/test/mock/user.model.mock';
-import { mockUserService } from '../../../user/test/mock/user.service.mock';
 import { UserService } from '../../../user/user.service';
-import { TOKEN_KEY } from '../../auth.constants';
 import { AuthService } from '../../auth.service';
+import { setupModule } from './setup';
 
 describe('AuthService.register()', () => {
   let service: AuthService;
@@ -14,17 +11,7 @@ describe('AuthService.register()', () => {
   let createSpy: jest.SpyInstance;
 
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: '60m' } }),
-        {
-          module: class FakeModule {},
-          providers: [{ provide: UserService, useValue: mockUserService }],
-          exports: [UserService],
-        },
-      ],
-      providers: [AuthService],
-    }).compile();
+    const module = await setupModule();
 
     service = module.get<AuthService>(AuthService);
     userService = module.get<UserService>(UserService);

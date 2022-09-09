@@ -1,29 +1,15 @@
 import { UnauthorizedException } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { Test, TestingModule } from '@nestjs/testing';
+import { setupModule } from './setup';
 import { UserDto } from '../../../user/dto/user.dto';
 
 import { mockCredentials } from '../../../user/test/mock/user.model.mock';
-import { mockUserService } from '../../../user/test/mock/user.service.mock';
-import { UserService } from '../../../user/user.service';
-import { TOKEN_KEY } from '../../auth.constants';
 import { AuthService } from '../../auth.service';
 
 describe('AuthService.validateUser()', () => {
   let authService: AuthService;
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: '60m' } }),
-        {
-          module: class FakeModule {},
-          providers: [{ provide: UserService, useValue: mockUserService }],
-          exports: [UserService],
-        },
-      ],
-      providers: [AuthService],
-    }).compile();
-    authService = module.get<AuthService>(AuthService);
+    const module = await setupModule();
+    authService = module.get(AuthService);
   });
 
   it(`should return user data`, async () => {
@@ -35,6 +21,6 @@ describe('AuthService.validateUser()', () => {
 
   it(`should throw UnauthorizedException when password is incorrect`, async () => {
     const user = authService.validateUser({ ...mockCredentials, password: 'wrong' });
-    expect(user).rejects.toThrowError(UnauthorizedException);
+    await expect(user).rejects.toThrowError(UnauthorizedException);
   });
 });

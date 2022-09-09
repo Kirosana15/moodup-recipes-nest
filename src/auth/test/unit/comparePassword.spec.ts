@@ -1,28 +1,15 @@
-import { JwtModule } from '@nestjs/jwt';
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestingModule } from '@nestjs/testing';
 import bcrypt from 'bcrypt';
 
 import { mockPassword } from '../../../user/test/mock/user.model.mock';
-import { mockUserService } from '../../../user/test/mock/user.service.mock';
-import { UserService } from '../../../user/user.service';
-import { TOKEN_KEY } from '../../auth.constants';
 import { AuthService } from '../../auth.service';
+import { setupModule } from './setup';
 
 describe('AuthService.validateUser()', () => {
   let authService: AuthService;
   let module: TestingModule;
   beforeAll(async () => {
-    module = await Test.createTestingModule({
-      imports: [
-        JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: '60m' } }),
-        {
-          module: class FakeModule {},
-          providers: [{ provide: UserService, useValue: mockUserService }],
-          exports: [UserService],
-        },
-      ],
-      providers: [AuthService],
-    }).compile();
+    module = await setupModule();
     authService = module.get<AuthService>(AuthService);
   });
 

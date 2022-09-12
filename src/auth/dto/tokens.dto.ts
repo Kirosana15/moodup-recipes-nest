@@ -3,15 +3,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { RoleTypes } from '../enums/roles';
 
 export class RefreshTokenDto {
-  _id: string;
+  id: string;
   refreshToken: string;
 }
 
 export class AccessTokenDto {
-  _id: string;
+  id: string;
   username: string;
   roles: RoleTypes[];
-  createdAt: number;
+  createdAt: Date;
 }
 
 export class TokensDto {

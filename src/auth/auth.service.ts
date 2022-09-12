@@ -55,8 +55,8 @@ export class AuthService {
   async refreshTokens(header: string): Promise<TokensDto> {
     try {
       const refreshToken = header.split(' ')[0] === 'Bearer' ? header.split(' ')[1] : header;
-      const { _id } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
-      const user = await this.userService.getById(_id);
+      const { id } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
+      const user = await this.userService.user({ id });
       if (user?.refreshToken !== refreshToken) {
         throw new UnauthorizedException('Invalid token');
       }
@@ -67,7 +67,7 @@ export class AuthService {
   }
 
   async verifyBearer(id: string): Promise<UserInfoDto | null> {
-    const user = this.userService.getById(id);
+    const user = this.userService.user({ id });
     if (user) {
       return user;
     }
@@ -79,8 +79,8 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const accessToken = this.jwtService.sign(user);
-    const refreshToken = this.jwtService.sign({ _id: user._id });
-    await this.userService.updateToken(user, refreshToken);
+    const refreshToken = this.jwtService.sign({ id: user.id });
+    await this.userService.refreshToken(user.id, refreshToken);
     return { accessToken, refreshToken };
   }
 }

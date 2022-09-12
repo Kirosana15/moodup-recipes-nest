@@ -1,35 +1,27 @@
-import { Optional } from '@nestjs/common';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsMongoId, IsUrl, Length } from 'class-validator';
+import { Prisma } from '@prisma/client';
 
-export class RecipeDto {
-  @ApiProperty()
-  id: string;
+export const RecipeAll = Prisma.validator<Prisma.RecipeArgs>()({
+  select: { id: true, ownerId: true, title: true, imageUrl: true, content: true, createdAt: true },
+});
 
-  @ApiProperty()
-  @IsMongoId()
-  ownerId: string;
+export const RecipeInfo = Prisma.validator<Prisma.RecipeArgs>()({
+  select: { ownerId: true, title: true, imageUrl: true, content: true, createdAt: true },
+});
 
-  @ApiProperty()
-  @Length(3, 20)
-  title: string;
+export const RecipeId = Prisma.validator<Prisma.RecipeArgs>()({
+  select: { id: true },
+});
 
-  @ApiProperty()
-  @Optional()
-  @IsUrl()
-  imageUrl: string;
+export const RecipeContent = Prisma.validator<Prisma.RecipeArgs>()({
+  select: { title: true, imageUrl: true, content: true },
+});
 
-  @ApiProperty()
-  @Length(20, 1000)
-  content: string;
+export const RecipeCreate = Prisma.validator<Prisma.RecipeArgs>()({
+  select: { ownerId: true, title: true, imageUrl: true, content: true },
+});
 
-  @ApiProperty()
-  @Optional()
-  @IsDate()
-  createdAt: Date;
-}
-
-export type RecipeInfoDto = Omit<RecipeDto, 'id'>;
-export type RecipeIdDto = Pick<RecipeDto, 'id'>;
-export type RecipeContentDto = Pick<RecipeDto, 'title' | 'imageUrl' | 'content'>;
-export type RecipeCreateDto = Omit<RecipeDto, 'id' | 'createdAt'>;
+export type RecipeDto = Prisma.RecipeGetPayload<typeof RecipeAll>;
+export type UserInfoDto = Prisma.RecipeGetPayload<typeof RecipeInfo>;
+export type RecipeIdDto = Prisma.RecipeGetPayload<typeof RecipeId>;
+export type RecipeContentDto = Prisma.RecipeGetPayload<typeof RecipeContent>;
+export type RecipeCreateDto = Prisma.RecipeGetPayload<typeof RecipeCreate>;

@@ -1,66 +1,54 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { PaginatedResults } from '../dto/paginatedResults.dto';
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+
 import { PaginatedQueryDto } from '../dto/queries.dto';
 import { paginate } from '../helpers/paginate';
-import { RecipeDto, RecipeInfoDto } from './dto/recipe.dto';
-import { Recipe, RecipeDocument } from './recipe.schema';
+import { PrismaService } from '../prisma/prisma.service';
+import { RecipeCreateDto, RecipeDto, RecipeIdDto } from './dto/recipe.dto';
+import { RecipeSelect } from './recipe.select';
 
 @Injectable()
 export class RecipeService {
-  constructor(@InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create(recipe: Omit<RecipeInfoDto, 'createdAt'>): Promise<RecipeDto> {
-    const newRecipe = new this.recipeModel(recipe);
-    return (await newRecipe.save()).toObject();
+  async create(recipe: RecipeCreateDto): Promise<RecipeDto> {
+    return this.prisma.recipe.create({ data: recipe });
   }
 
-  getById(id: string): Promise<RecipeDto | null> {
-    return this.recipeModel.findById(id).lean().exec();
+  recipe(id: string, select: Prisma.RecipeSelect = RecipeSelect.All): Promise<Partial<RecipeDto>> {
+    return this.prisma.recipe.findUniqueOrThrow({ select, where: { id } });
   }
 
-  async getAll(paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<RecipeDto>> {
-    const page = paginatedQueryDto.page;
-    const limit = paginatedQueryDto.limit;
-    const countQuery = this.recipeModel.count();
-    const recipesQuery = this.recipeModel
-      .find({})
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ _id: -1 })
-      .exec();
-
-    const [count, recipes] = await Promise.all([countQuery, recipesQuery]);
-
-    return paginate<RecipeDto>(page, limit, count, recipes);
-  }
-
-  delete(id: string): Promise<RecipeDto | null> {
-    return this.recipeModel.findByIdAndDelete(id).lean().exec();
-  }
-
-  async searchInTitle(query: string, paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<RecipeDto>> {
-    const page = paginatedQueryDto.page;
-    const limit = paginatedQueryDto.limit;
-    if (!query.match(/^[\w'-]*$/)) {
-      throw new BadRequestException('query cannot contain special characters');
+  async recipes(
+    paginatedQueryDto: PaginatedQueryDto,
+    select?: Prisma.RecipeSelect,
+    where?: Prisma.RecipeWhereInput | string,
+  ) {
+    const { page, limit } = paginatedQueryDto;
+    const take = limit;
+    const skip = (page - 1) * take;
+    if (typeof where === 'string') {
+      where = { title: { search: where } };
     }
-    const countQuery = this.recipeModel.count({ title: { $regex: query, $options: 'i' } });
-    const searchQuery = this.recipeModel
-      .find({ title: { $regex: query, $options: 'i' } })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+    const itemsQuery = this.prisma.recipe.findMany({
+      select,
+      skip,
+      take,
+      where,
+      orderBy: { id: 'asc' },
+    });
+    const countQuery = this.prisma.recipe.count();
 
-    const [count, recipes] = await Promise.all([countQuery, searchQuery]);
+    const [items, count] = await Promise.all([itemsQuery, countQuery]);
 
-    return paginate<RecipeDto>(page, limit, count, recipes);
+    return paginate(page, limit, count, items);
   }
 
-  update(id: string, recipe: Partial<RecipeDto>): Promise<RecipeDto | null> {
-    return this.recipeModel.findByIdAndUpdate(id, recipe, { new: true }).lean().exec();
+  delete(where: RecipeIdDto): Promise<RecipeDto | null> {
+    return this.prisma.recipe.delete({ where });
+  }
+
+  update(where: RecipeIdDto, recipe: Prisma.RecipeUpdateInput): Promise<RecipeDto | null> {
+    return this.prisma.recipe.update({ where, data: recipe });
   }
 }

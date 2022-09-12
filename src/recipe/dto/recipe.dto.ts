@@ -1,10 +1,10 @@
 import { Optional } from '@nestjs/common';
-import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsMongoId, IsUrl, Length } from 'class-validator';
 
 export class RecipeDto {
   @ApiProperty()
-  _id: string;
+  id: string;
 
   @ApiProperty()
   @IsMongoId()
@@ -26,9 +26,10 @@ export class RecipeDto {
   @ApiProperty()
   @Optional()
   @IsDate()
-  createdAt: number;
+  createdAt: Date;
 }
 
-export class RecipeInfoDto extends OmitType(RecipeDto, ['_id']) {}
-export class RecipeIdDto extends PickType(RecipeDto, ['_id']) {}
-export class RecipeContentDto extends PickType(RecipeDto, ['title', 'imageUrl', 'content']) {}
+export type RecipeInfoDto = Omit<RecipeDto, 'id'>;
+export type RecipeIdDto = Pick<RecipeDto, 'id'>;
+export type RecipeContentDto = Pick<RecipeDto, 'title' | 'imageUrl' | 'content'>;
+export type RecipeCreateDto = Omit<RecipeDto, 'id' | 'createdAt'>;

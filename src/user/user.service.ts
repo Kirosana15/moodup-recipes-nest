@@ -5,7 +5,7 @@ import { PaginatedResults } from '../dto/paginatedResults.dto';
 import { PaginatedQueryDto } from '../dto/queries.dto';
 import { paginate } from '../helpers/paginate';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserCredentialsDto, UserDto, UserInfo, UserInfoDto } from './dto/user.dto';
+import { UserAll, UserCredentialsDto, UserDto, UserInfo, UserInfoDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -23,11 +23,11 @@ export class UserService {
     return this.prisma.user.update({ select: UserInfo.select, data, where });
   }
 
-  async user(
-    where: Prisma.UserWhereUniqueInput,
-    select = UserInfo.select,
-  ): Promise<UserDto | UserInfoDto | UserCredentialsDto | null> {
-    return this.prisma.user.findUnique({ select: select, where });
+  async user(where: Prisma.UserWhereUniqueInput): Promise<Partial<UserInfoDto> | null> {
+    return this.prisma.user.findUnique({ ...UserInfo, where });
+  }
+  async userWithCredentials(where: Prisma.UserWhereUniqueInput): Promise<Partial<UserDto> | null> {
+    return this.prisma.user.findUnique({ ...UserAll, where });
   }
 
   async users(

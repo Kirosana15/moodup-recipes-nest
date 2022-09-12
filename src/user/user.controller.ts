@@ -1,5 +1,5 @@
 import { Controller, Delete, Get, NotFoundException, Param, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '../decorators/roles';
 import { RoleTypes } from '../auth/enums/roles';
@@ -9,7 +9,8 @@ import { UserService } from './user.service';
 import { OwnerGuard } from '../auth/guards/owner.guard';
 import { PaginatedResults } from '../dto/paginatedResults.dto';
 
-@ApiTags('user')
+@ApiTags('User')
+@ApiBearerAuth()
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}

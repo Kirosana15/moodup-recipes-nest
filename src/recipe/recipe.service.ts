@@ -19,11 +19,7 @@ export class RecipeService {
     return this.prisma.recipe.findUniqueOrThrow({ select, where: { id } });
   }
 
-  async recipes(
-    paginatedQueryDto: PaginatedQueryDto,
-    select?: Prisma.RecipeSelect,
-    where?: Prisma.RecipeWhereInput | string,
-  ) {
+  async recipes(paginatedQueryDto: PaginatedQueryDto, where?: Prisma.RecipeWhereInput | string) {
     const { page, limit } = paginatedQueryDto;
     const take = limit;
     const skip = (page - 1) * take;
@@ -31,7 +27,6 @@ export class RecipeService {
       where = { title: { search: where } };
     }
     const itemsQuery = this.prisma.recipe.findMany({
-      select,
       skip,
       take,
       where,

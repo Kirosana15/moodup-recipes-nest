@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserAll, UserCredentialsDto, UserDto, UserInfoDto } from '../user/dto/user.dto';
+import { UserCredentialsDto, UserDto, UserInfoDto } from '../user/dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
+import { TokensDto } from './dto/tokens.dto';
 import { UserService } from '../user/user.service';
 
 import bcrypt from 'bcrypt';
@@ -36,7 +36,7 @@ export class AuthService {
 
   async validateUser(userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
     const { username, password } = userCredentialsDto;
-    const user = <UserDto>await this.userService.user({ username }, UserAll.select);
+    const user = <UserDto>await this.userService.userWithCredentials({ username });
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -52,27 +52,13 @@ export class AuthService {
     return bcrypt.compare(password, hash);
   }
 
-  async refreshTokens(header: string): Promise<TokensDto> {
-    try {
-      const refreshToken = header.split(' ')[0] === 'Bearer' ? header.split(' ')[1] : header;
-      const { id } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
-      const user = <UserDto>await this.userService.user({ id }, UserAll.select);
-      if (user?.refreshToken !== refreshToken) {
-        throw new UnauthorizedException('Invalid token');
-      }
-      const { refreshToken: _r, password: _p, ...userData } = user;
-      return this.getNewTokens(userData);
-    } catch (err) {
-      throw new UnauthorizedException('Invalid Token ');
+  async refreshTokens(id: string, refreshToken: string): Promise<TokensDto> {
+    const user = <UserDto>await this.userService.userWithCredentials({ id });
+    if (user?.refreshToken !== refreshToken) {
+      throw new UnauthorizedException('Invalid token');
     }
-  }
-
-  async verifyBearer(id: string): Promise<UserInfoDto | null> {
-    const user = <UserInfoDto>await this.userService.user({ id });
-    if (user) {
-      return user;
-    }
-    return null;
+    const { refreshToken: _r, password: _p, ...userData } = user;
+    return this.getNewTokens(userData);
   }
 
   async getNewTokens(user: UserInfoDto): Promise<TokensDto> {

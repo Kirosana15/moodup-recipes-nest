@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Headers,
   HttpCode,
   Logger,
   Patch,
@@ -12,14 +11,15 @@ import {
 } from '@nestjs/common';
 import { UserInfoDto } from '../user/dto/user.dto';
 
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { TokensDto } from './dto/tokens.dto';
+import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
 import { LocalAuthGuard } from './strategies/local.strategy';
 import { NoBearerAuth } from '../decorators/noBearer';
 import { AuthorizedUser } from '../decorators/authorizedUser';
 import { Prisma } from '@prisma/client';
 import { UserCredentialsEntity } from '../user/model/user.entity';
+import { RefreshAuthGuard } from './guards/refresh.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -44,6 +44,7 @@ export class AuthController {
   }
 
   @NoBearerAuth()
+  @ApiBody({ schema: { $ref: getSchemaPath(UserCredentialsEntity) } })
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
@@ -51,12 +52,17 @@ export class AuthController {
     if (!user) {
       throw new UnauthorizedException();
     }
-    const tokens = await this.authService.getNewTokens(user);
-    return tokens;
+    return this.authService.getNewTokens(user);
   }
 
+  @ApiBearerAuth()
+  @NoBearerAuth()
+  @UseGuards(RefreshAuthGuard)
   @Patch('/refresh-token')
-  async refreshToken(@Headers('Authorization') refreshToken: string) {
-    return this.authService.refreshTokens(refreshToken);
+  async refreshToken(@AuthorizedUser() user: RefreshTokenDto) {
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    return user;
   }
 }

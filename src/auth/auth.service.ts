@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
+import { UserAll, UserCredentialsDto, UserDto, UserInfoDto } from '../user/dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
 import { UserService } from '../user/user.service';
@@ -36,7 +36,7 @@ export class AuthService {
 
   async validateUser(userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
     const { username, password } = userCredentialsDto;
-    const user = await this.userService.user({ username });
+    const user = <UserDto>await this.userService.user({ username }, UserAll.select);
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -56,7 +56,7 @@ export class AuthService {
     try {
       const refreshToken = header.split(' ')[0] === 'Bearer' ? header.split(' ')[1] : header;
       const { id } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
-      const user = await this.userService.user({ id });
+      const user = <UserDto>await this.userService.user({ id }, UserAll.select);
       if (user?.refreshToken !== refreshToken) {
         throw new UnauthorizedException('Invalid token');
       }
@@ -67,7 +67,7 @@ export class AuthService {
   }
 
   async verifyBearer(id: string): Promise<UserInfoDto | null> {
-    const user = this.userService.user({ id });
+    const user = <UserInfoDto>await this.userService.user({ id });
     if (user) {
       return user;
     }
@@ -80,7 +80,7 @@ export class AuthService {
     }
     const accessToken = this.jwtService.sign(user);
     const refreshToken = this.jwtService.sign({ id: user.id });
-    await this.userService.refreshToken(user.id, refreshToken);
+    await this.userService.update({ id: user.id }, { refreshToken });
     return { accessToken, refreshToken };
   }
 }

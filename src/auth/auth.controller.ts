@@ -10,7 +10,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
+import { UserInfoDto } from '../user/dto/user.dto';
 
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -19,6 +19,7 @@ import { LocalAuthGuard } from './strategies/local.strategy';
 import { NoBearerAuth } from '../decorators/noBearer';
 import { AuthorizedUser } from '../decorators/authorizedUser';
 import { Prisma } from '@prisma/client';
+import { UserCredentialsEntity } from '../user/model/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -27,7 +28,7 @@ export class AuthController {
 
   @NoBearerAuth()
   @Post('register')
-  async register(@Body() userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
+  async register(@Body() userCredentialsDto: UserCredentialsEntity): Promise<UserInfoDto> {
     try {
       const newUser = await this.authService.register(userCredentialsDto);
       return newUser;

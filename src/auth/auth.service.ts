@@ -60,7 +60,8 @@ export class AuthService {
       if (user?.refreshToken !== refreshToken) {
         throw new UnauthorizedException('Invalid token');
       }
-      return this.getNewTokens(user);
+      const { refreshToken: _r, password: _p, ...userData } = user;
+      return this.getNewTokens(userData);
     } catch (err) {
       throw new UnauthorizedException('Invalid Token ');
     }

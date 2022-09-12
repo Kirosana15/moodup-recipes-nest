@@ -1,5 +1,5 @@
 import { Controller, Delete, Get, NotFoundException, Param, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiForbiddenResponse, ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '../decorators/roles';
 import { RoleTypes } from '../auth/enums/roles';
@@ -18,9 +18,10 @@ import { UserInfoEntity } from './model/user.entity';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('/all')
-  @ApiOkPaginatedResults()
   @Roles(RoleTypes.Admin)
+  @ApiOkPaginatedResults()
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @Get('/all')
   getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<UserInfoEntity>> {
     return this.userService.users(paginatedQueryDto);
   }
@@ -31,12 +32,15 @@ export class UserController {
     return { id, username, roles, createdAt };
   }
 
-  @Delete('/:id')
   @UseGuards(OwnerGuard)
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @Delete('/:id')
   deleteUser(@Param('id') id: string): Promise<UserInfoEntity> {
     return this.userService.delete({ id });
   }
 
+  @ApiNotFoundResponse({ description: 'Recipe not found' })
   @Get('/:id')
   async getUser(@Param('id') id: string): Promise<UserInfoEntity> {
     const user = await this.userService.user({ id });

@@ -11,7 +11,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiForbiddenResponse, ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { RoleTypes } from '../auth/enums/roles';
 import { OwnerGuard } from '../auth/guards/owner.guard';
@@ -35,6 +35,7 @@ export class RecipeController {
 
   @Roles(RoleTypes.Admin)
   @ApiOkPaginatedResults()
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   @Get('/all')
   getAllRecipes(@Query() query: PaginatedQueryDto): Promise<PaginatedResults<RecipeEntity>> {
     return this.recipeService.recipes(query);
@@ -59,6 +60,8 @@ export class RecipeController {
   }
 
   @UseGuards(OwnerGuard)
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Recipe not found' })
   @Delete(':id')
   async deleteRecipe(@Param('id') id: string): Promise<RecipeEntity> {
     const recipe: RecipeEntity | null = await this.recipeService.delete({ id });
@@ -79,6 +82,8 @@ export class RecipeController {
 
   @UseGuards(OwnerGuard)
   @ApiBody({ type: RecipeContentEntity })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Recipe not found' })
   @Patch(':id')
   async updateRecipe(@Param('id') id: string, @Body() recipe: Partial<RecipeContentEntity>): Promise<RecipeEntity> {
     const updatedRecipe = await this.recipeService.update({ id }, recipe);

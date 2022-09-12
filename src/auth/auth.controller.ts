@@ -1,4 +1,15 @@
-import { Body, Controller, Headers, HttpCode, Patch, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Headers,
+  HttpCode,
+  Logger,
+  Patch,
+  Post,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
 
 import { ApiTags } from '@nestjs/swagger';
@@ -7,6 +18,7 @@ import { TokensDto } from './dto/tokens.dto';
 import { LocalAuthGuard } from './strategies/local.strategy';
 import { NoBearerAuth } from '../decorators/noBearer';
 import { AuthorizedUser } from '../decorators/authorizedUser';
+import { Prisma } from '@prisma/client';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -16,7 +28,18 @@ export class AuthController {
   @NoBearerAuth()
   @Post('register')
   async register(@Body() userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
-    return this.authService.register(userCredentialsDto);
+    try {
+      const newUser = await this.authService.register(userCredentialsDto);
+      return newUser;
+    } catch (err) {
+      Logger.error(err);
+      if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err.code === 'P2002') {
+          throw new BadRequestException(`User '${userCredentialsDto.username}' already exists`);
+        }
+      }
+      throw err;
+    }
   }
 
   @NoBearerAuth()

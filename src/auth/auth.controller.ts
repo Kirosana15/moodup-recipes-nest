@@ -11,24 +11,42 @@ import {
 } from '@nestjs/common';
 import { UserInfoDto } from '../user/dto/user.dto';
 
-import { ApiBearerAuth, ApiBody, ApiTags, getSchemaPath } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiInternalServerErrorResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
 import { LocalAuthGuard } from './strategies/local.strategy';
 import { NoBearerAuth } from '../decorators/noBearer';
 import { AuthorizedUser } from '../decorators/authorizedUser';
 import { Prisma } from '@prisma/client';
-import { UserCredentialsEntity } from '../user/model/user.entity';
+import { UserCredentialsEntity, UserInfoEntity } from '../user/model/user.entity';
 import { RefreshAuthGuard } from './guards/refresh.guard';
+import { TokensDto } from './dto/tokens.dto';
 
 @ApiTags('Auth')
+@ApiInternalServerErrorResponse({ description: 'Internal server error' })
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @NoBearerAuth()
+  @ApiBadRequestResponse({
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'User {username} already exists',
+        error: 'Bad Request',
+      },
+    },
+  })
   @Post('register')
-  async register(@Body() userCredentialsDto: UserCredentialsEntity): Promise<UserInfoDto> {
+  async register(@Body() userCredentialsDto: UserCredentialsEntity): Promise<UserInfoEntity> {
     try {
       const newUser = await this.authService.register(userCredentialsDto);
       return newUser;
@@ -47,6 +65,7 @@ export class AuthController {
   @ApiBody({ schema: { $ref: getSchemaPath(UserCredentialsEntity) } })
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @HttpCode(200)
   async login(@AuthorizedUser() user: UserInfoDto): Promise<TokensDto> {
     if (!user) {
@@ -57,9 +76,10 @@ export class AuthController {
 
   @ApiBearerAuth()
   @NoBearerAuth()
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @UseGuards(RefreshAuthGuard)
   @Patch('/refresh-token')
-  async refreshToken(@AuthorizedUser() user: RefreshTokenDto) {
+  async refreshToken(@AuthorizedUser() user: TokensDto): Promise<TokensDto> {
     if (!user) {
       throw new UnauthorizedException();
     }

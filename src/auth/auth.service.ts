@@ -36,7 +36,7 @@ export class AuthService {
 
   async validateUser(userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
     const { username, password } = userCredentialsDto;
-    const user = await this.userService.getByUsername(username);
+    const user = await this.userService.user({ username });
     if (!user) {
       throw new UnauthorizedException();
     }

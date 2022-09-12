@@ -62,7 +62,7 @@ export class RecipeController {
   @UseGuards(OwnerGuard)
   @ApiDefaultResponses()
   @Delete(':id')
-  async deleteRecipe(@Param('id') id: string): Promise<RecipeEntity | null> {
+  async deleteRecipe(@Param('id') id: string): Promise<RecipeEntity> {
     const recipe: RecipeEntity | null = await this.recipeService.delete({ id });
     if (!recipe) {
       throw new NotFoundException('Recipe does not exist');

@@ -1,8 +1,8 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 
-import { PaginatedResults } from '../../dto/paginatedResults.dto';
-import { RecipeEntity } from '../model/recipe.entity';
+import { PaginatedResults } from '../dto/paginatedResults.dto';
+import { RecipeEntity } from '../recipe/model/recipe.entity';
 
 export const ApiOkPaginatedResults = () =>
   applyDecorators(

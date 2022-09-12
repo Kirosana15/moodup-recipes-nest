@@ -23,25 +23,24 @@ import { UserInfoDto } from '../user/dto/user.dto';
 import { RecipeContentEntity, RecipeEntity } from './model/recipe.entity';
 
 import { RecipeService } from './recipe.service';
-import { ApiDefaultResponses } from './swagger/default';
-import { ApiOkPaginatedResults } from './swagger/paginated';
+import { ApiDefaultResponses } from '../swagger/default';
+import { ApiOkPaginatedResults } from '../swagger/paginated';
 
 @ApiTags('Recipe')
 @ApiBearerAuth()
+@ApiDefaultResponses()
 @Controller('recipe')
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
 
   @Roles(RoleTypes.Admin)
   @ApiOkPaginatedResults()
-  @ApiDefaultResponses()
   @Get('/all')
   getAllRecipes(@Query() query: PaginatedQueryDto): Promise<PaginatedResults<RecipeEntity>> {
     return this.recipeService.recipes(query);
   }
 
   @Post('/')
-  @ApiDefaultResponses()
   async createRecipe(
     @Body() recipeContents: RecipeContentEntity,
     @AuthorizedUser() user: UserInfoDto,
@@ -60,7 +59,6 @@ export class RecipeController {
   }
 
   @UseGuards(OwnerGuard)
-  @ApiDefaultResponses()
   @Delete(':id')
   async deleteRecipe(@Param('id') id: string): Promise<RecipeEntity> {
     const recipe: RecipeEntity | null = await this.recipeService.delete({ id });
@@ -71,7 +69,6 @@ export class RecipeController {
   }
 
   @ApiOkPaginatedResults()
-  @ApiDefaultResponses()
   @Get('/search/:query')
   searchRecipeTitles(
     @Param('query') query: string,
@@ -82,7 +79,6 @@ export class RecipeController {
 
   @UseGuards(OwnerGuard)
   @ApiBody({ type: RecipeContentEntity })
-  @ApiDefaultResponses()
   @Patch(':id')
   async updateRecipe(@Param('id') id: string, @Body() recipe: Partial<RecipeContentEntity>): Promise<RecipeEntity> {
     const updatedRecipe = await this.recipeService.update({ id }, recipe);

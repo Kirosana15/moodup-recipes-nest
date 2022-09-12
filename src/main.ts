@@ -13,6 +13,7 @@ async function bootstrap() {
     .setTitle('Recipes API')
     .setDescription('API for storing recipes with user authentication')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const prismaService = app.get(PrismaService);
   await prismaService.enableShutdownHooks(app);

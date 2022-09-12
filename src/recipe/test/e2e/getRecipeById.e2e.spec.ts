@@ -26,11 +26,17 @@ describe('recipe', () => {
 
   describe('/GET :id', () => {
     const TEST_PATH = `/recipe/${mockUser._id}`;
+    const request = (status: HttpStatus) => sendRequest(app, 'get', TEST_PATH, status, mockUser);
     it('should return a recipe with specified id', async () => {
-      const res = await sendRequest(app, 'get', TEST_PATH, HttpStatus.OK, mockUser);
+      const res = await request(HttpStatus.OK);
       expect(res.body).toBeDefined();
       expect(res.body._id).toEqual(mockUser._id);
       expect(recipeService.getById).toBeCalledTimes(1);
+    });
+
+    it(`should return${HttpStatus.NOT_FOUND} when recipe does not exist`, async () => {
+      recipeService.getById.mockReturnValueOnce(null);
+      await request(HttpStatus.NOT_FOUND);
     });
   });
 });

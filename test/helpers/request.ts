@@ -12,6 +12,7 @@ export const sendRequest = async (
   user?: Partial<UserDto>,
   query?: Record<string, unknown>,
   body?: string | object,
+  header?: Record<'field' | 'val', string>,
 ) => {
   const req = request(app.getHttpServer());
   let call: request.Test;
@@ -40,6 +41,9 @@ export const sendRequest = async (
   }
   if (body) {
     call.send(body);
+  }
+  if (header) {
+    call.set(header.field, header.val);
   }
   return call.expect(status);
 };

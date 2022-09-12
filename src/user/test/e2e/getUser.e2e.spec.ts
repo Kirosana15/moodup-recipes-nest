@@ -4,6 +4,7 @@ import { TestingModule } from '@nestjs/testing';
 
 import { sendRequest } from '../../../../test/helpers/request';
 import { MockGuards } from '../../../auth/guards/mock/guards';
+import { UserDto } from '../../dto/user.dto';
 import { generateUser } from '../mock/user.model.mock';
 import { mockUserService } from '../mock/user.service.mock';
 import { setupApp, setupModule } from './setup';
@@ -23,20 +24,21 @@ describe('user', () => {
   });
 
   describe('/GET :id', () => {
-    const TEST_PATH = `/user/${mockUser._id}`;
+    const request = (status: HttpStatus, user?: Partial<UserDto>) =>
+      sendRequest(app, 'get', `/user/${mockUser._id}`, status, user);
 
     it(`should return ${HttpStatus.OK} and user information`, async () => {
-      const res = await sendRequest(app, 'get', TEST_PATH, HttpStatus.OK, mockUser);
+      const res = await request(HttpStatus.OK, mockUser);
       expect(res.body._id).toEqual(mockUser._id);
     });
 
     it(`should return ${HttpStatus.FORBIDDEN} if user is not authenticated`, async () => {
-      await sendRequest(app, 'get', TEST_PATH, HttpStatus.FORBIDDEN);
+      await request(HttpStatus.FORBIDDEN);
     });
 
     it(`should return ${HttpStatus.NOT_FOUND} when user does not exist`, async () => {
       mockUserService.getById.mockReturnValueOnce(null);
-      await sendRequest(app, 'get', TEST_PATH, HttpStatus.NOT_FOUND, mockUser);
+      await request(HttpStatus.NOT_FOUND, mockUser);
     });
   });
 });

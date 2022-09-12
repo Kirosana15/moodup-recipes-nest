@@ -6,6 +6,7 @@ import { sendRequest } from '../../../../test/helpers/request';
 import { MockGuards, getMockGuard } from '../../../auth/guards/mock/guards';
 import { OwnerGuard } from '../../../auth/guards/owner.guard';
 import { generateUserFromDb } from '../../../user/test/mock/user.model.mock';
+import { RecipeDto } from '../../dto/recipe.dto';
 import { mockId, mockTitle } from '../mock/recipe.mock';
 import { mockRecipeService } from '../mock/recipeService.mock';
 import { setupApp, setupModule } from './setup';
@@ -27,10 +28,12 @@ describe('recipe', () => {
   });
 
   describe('/PATCH :id', () => {
-    const TEST_PATH = `/recipe/${mockUser._id}`;
+    const request = (status: HttpStatus, body?: Partial<RecipeDto>, path = `/recipe/${mockUser._id}`) =>
+      sendRequest(app, 'patch', path, status, mockUser, undefined, body);
+
     it('should return updated recipe', async () => {
       const titleMock = mockTitle();
-      const res = await sendRequest(app, 'patch', TEST_PATH, HttpStatus.OK, mockUser, undefined, { title: titleMock });
+      const res = await request(HttpStatus.OK, { title: titleMock });
       expect(res.body).toBeDefined();
       expect(res.body._id).toBe(mockUser._id);
       expect(res.body.title).toBe(titleMock);
@@ -38,12 +41,12 @@ describe('recipe', () => {
 
     it(`should return ${HttpStatus.NOT_FOUND} when recipe does not exist`, async () => {
       recipeService.update.mockReturnValueOnce(null);
-      await sendRequest(app, 'patch', TEST_PATH, HttpStatus.NOT_FOUND, mockUser);
+      await request(HttpStatus.NOT_FOUND);
     });
 
     it(`should return ${HttpStatus.FORBIDDEN} when user is not authorized to update recipe`, async () => {
       const idMock = mockId();
-      await sendRequest(app, 'patch', `/recipe/${idMock}`, HttpStatus.FORBIDDEN, mockUser);
+      await request(HttpStatus.FORBIDDEN, undefined, `/recipe/${idMock}`);
     });
   });
 });

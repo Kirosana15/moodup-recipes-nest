@@ -23,10 +23,10 @@ describe('recipe', () => {
   });
 
   describe('/GET search/:query', () => {
-    const testPath = (query: string) => `/recipe/search/${query}`;
+    const request = (status: HttpStatus, query: string) => sendRequest(app, 'get', `/recipe/search/${query}`, status);
     it('should return array of recipes containing query in their title', async () => {
       const query = faker.word.noun();
-      const res = await sendRequest(app, 'get', testPath(query), HttpStatus.OK);
+      const res = await request(HttpStatus.OK, query);
       const { pagination, items }: PaginatedResults<RecipeInfoDto> = res.body;
       expect(items.every(recipe => recipe.title === query)).toBeTruthy();
       expect(items).toHaveLength(10);
@@ -40,7 +40,7 @@ describe('recipe', () => {
 
     it('should return empty array if no recipes are found', async () => {
       mockRecipeService.searchInTitle.mockReturnValueOnce([]);
-      const res = await sendRequest(app, 'get', testPath('query'), HttpStatus.OK);
+      const res = await request(HttpStatus.OK, 'query');
       expect(res.body).toBeDefined();
       expect(res.body).toStrictEqual([]);
     });

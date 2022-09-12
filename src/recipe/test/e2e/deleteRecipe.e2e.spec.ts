@@ -26,17 +26,18 @@ describe('recipe', () => {
 
   describe('/DELETE :id', () => {
     const TEST_PATH = `/recipe/${mockUser._id}`;
+    const request = (status: HttpStatus, path = TEST_PATH) => sendRequest(app, 'delete', path, status, mockUser);
     it('should return deleted recipe', async () => {
-      const res = await sendRequest(app, 'delete', TEST_PATH, HttpStatus.OK, mockUser);
+      const res = await request(HttpStatus.OK);
       expect(res.body).toBeDefined();
       expect(res.body._id).toEqual(mockUser._id);
     });
     it(`should return ${HttpStatus.NOT_FOUND} if recipe does not exist`, async () => {
       mockRecipeService.delete.mockReturnValueOnce(null);
-      await sendRequest(app, 'delete', TEST_PATH, HttpStatus.NOT_FOUND, mockUser);
+      await request(HttpStatus.NOT_FOUND);
     });
     it(`should return ${HttpStatus.FORBIDDEN} if user is not an owner of a recipe`, async () => {
-      await sendRequest(app, 'delete', `/recipe/${mockId()}`, HttpStatus.FORBIDDEN, mockUser);
+      await request(HttpStatus.FORBIDDEN, `/recipe/${mockId()}`);
     });
   });
 });

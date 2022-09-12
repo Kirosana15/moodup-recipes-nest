@@ -4,6 +4,7 @@ import { TestingModule } from '@nestjs/testing';
 
 import { sendRequest } from '../../../../test/helpers/request';
 import { MockGuards } from '../../../auth/guards/mock/guards';
+import { UserDto } from '../../dto/user.dto';
 import { generateUser } from '../mock/user.model.mock';
 import { setupApp, setupModule } from './setup';
 
@@ -22,14 +23,14 @@ describe('user', () => {
   });
 
   describe('/GET me', () => {
-    const TEST_PATH = '/user/me';
+    const request = (status: HttpStatus, user?: Partial<UserDto>) => sendRequest(app, 'get', '/user/me', status, user);
     it(`should return ${HttpStatus.OK} and user info`, async () => {
-      const res = await sendRequest(app, 'get', TEST_PATH, HttpStatus.OK, mockUser);
+      const res = await request(HttpStatus.OK, mockUser);
       expect(res.body).toEqual(mockUser);
     });
 
     it(`should return ${HttpStatus.FORBIDDEN} when user is not logged in`, async () => {
-      await sendRequest(app, 'get', TEST_PATH, HttpStatus.FORBIDDEN);
+      await request(HttpStatus.FORBIDDEN);
     });
   });
 });

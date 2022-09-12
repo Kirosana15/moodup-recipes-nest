@@ -5,6 +5,7 @@ import { TestingModule } from '@nestjs/testing';
 import { sendRequest } from '../../../../test/helpers/request';
 import { RoleTypes } from '../../../auth/enums/roles';
 import { MockGuards } from '../../../auth/guards/mock/guards';
+import { UserDto } from '../../dto/user.dto';
 import { generateUserFromDb, mockId } from '../mock/user.model.mock';
 import { mockUserService } from '../mock/user.service.mock';
 import { setupApp, setupModule } from './setup';
@@ -24,18 +25,19 @@ describe('user', () => {
   });
 
   describe('/DELETE :id', () => {
-    const TEST_PATH = `/user/${mockUser._id}`;
+    const request = (status: HttpStatus, user?: Partial<UserDto>, path = `/user/${mockUser._id}`) =>
+      sendRequest(app, 'get', path, status, user);
     it(`should return ${HttpStatus.OK} and deleted user`, async () => {
-      const res = await sendRequest(app, 'delete', TEST_PATH, HttpStatus.OK, mockUser);
+      const res = await request(HttpStatus.OK, mockUser);
       expect(res.body._id).toEqual(mockUser._id);
     });
     it(`should return ${HttpStatus.NOT_FOUND} when user does not exist`, async () => {
       mockUserService.delete.mockReturnValueOnce(null);
-      await sendRequest(app, 'delete', TEST_PATH, HttpStatus.NOT_FOUND, mockUser);
+      await request(HttpStatus.NOT_FOUND, mockUser);
     });
     it(`should return ${HttpStatus.FORBIDDEN} when user tries to delete another user`, async () => {
       mockUserService.delete.mockReturnValueOnce(null);
-      await sendRequest(app, 'delete', `/user/${mockId}`, HttpStatus.FORBIDDEN, mockUser);
+      await request(HttpStatus.FORBIDDEN, mockUser, `/user/${mockId}`);
     });
   });
 });

@@ -27,23 +27,25 @@ describe('recipe', () => {
 
   describe('/POST', () => {
     const TEST_PATH = '/recipe';
+    const request = (status: HttpStatus, recipe: any) =>
+      sendRequest(app, 'post', TEST_PATH, status, mockUser, undefined, recipe);
     it('should return created recipe', async () => {
-      const res = await sendRequest(app, 'post', TEST_PATH, HttpStatus.CREATED, mockUser, undefined, mockRecipe);
+      const res = await request(HttpStatus.CREATED, mockRecipe);
       const recipe = <RecipeDto>res.body;
       expect(recipe).toBeDefined();
       expect(recipe.ownerId).toEqual(mockUser._id);
     });
     it(`should return ${HttpStatus.BAD_REQUEST} when title is incorrect`, async () => {
       const badRecipe = { ...mockRecipe, title: '' };
-      await sendRequest(app, 'post', TEST_PATH, HttpStatus.BAD_REQUEST, mockUser, undefined, badRecipe);
+      await request(HttpStatus.BAD_REQUEST, badRecipe);
     });
     it(`should return ${HttpStatus.BAD_REQUEST} when content is incorrect`, async () => {
       const badRecipe = { ...mockRecipe, content: 1234 };
-      await sendRequest(app, 'post', TEST_PATH, HttpStatus.BAD_REQUEST, mockUser, undefined, badRecipe);
+      await request(HttpStatus.BAD_REQUEST, badRecipe);
     });
     it(`should return ${HttpStatus.BAD_REQUEST} when imageUrl is not url`, async () => {
       const badRecipe = { ...mockRecipe, imageUrl: 'good looking food' };
-      await sendRequest(app, 'post', TEST_PATH, HttpStatus.BAD_REQUEST, mockUser, undefined, badRecipe);
+      await request(HttpStatus.BAD_REQUEST, badRecipe);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PickType } from '@nestjs/swagger';
 import { Role, User } from '@prisma/client';
 import { Length, Matches } from 'class-validator';
 
@@ -43,4 +43,5 @@ export class UserEntity implements User {
   createdAt: Date;
 }
 
+export class UserInfoEntity extends OmitType(UserEntity, ['refreshToken', 'password']) {}
 export class UserCredentialsEntity extends PickType(UserEntity, ['username', 'password']) {}

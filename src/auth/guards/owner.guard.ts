@@ -7,7 +7,7 @@ export class OwnerGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
     const { user, params } = req;
-    if (user?._id === params._id || user?.roles.includes(RoleTypes.Admin)) {
+    if (user?.id === params.id || user?.roles.includes(RoleTypes.Admin)) {
       return true;
     }
     return false;

@@ -11,33 +11,42 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiForbiddenResponse, ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { RoleTypes } from '../auth/enums/roles';
 import { OwnerGuard } from '../auth/guards/owner.guard';
 import { AuthorizedUser } from '../decorators/authorizedUser';
 import { Roles } from '../decorators/roles';
+import { PaginatedResults } from '../dto/paginatedResults.dto';
 import { PaginatedQueryDto } from '../dto/queries.dto';
 import { UserInfoDto } from '../user/dto/user.dto';
-import { RecipeDto, RecipeContentDto, RecipeIdDto } from './dto/recipe.dto';
+import { RecipeContentEntity, RecipeEntity } from './model/recipe.entity';
 
 import { RecipeService } from './recipe.service';
+import { ApiDefaultResponses } from '../swagger/default';
+import { ApiOkPaginatedResults } from '../swagger/paginated';
 
+@ApiTags('Recipe')
+@ApiBearerAuth()
+@ApiDefaultResponses()
 @Controller('recipe')
 export class RecipeController {
   constructor(private recipeService: RecipeService) {}
 
   @Roles(RoleTypes.Admin)
+  @ApiOkPaginatedResults()
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   @Get('/all')
-  getAllRecipes(@Query() query: PaginatedQueryDto) {
+  getAllRecipes(@Query() query: PaginatedQueryDto): Promise<PaginatedResults<RecipeEntity>> {
     return this.recipeService.recipes(query);
   }
 
   @Post('/')
   async createRecipe(
-    @Body() recipeContents: RecipeContentDto,
+    @Body() recipeContents: RecipeContentEntity,
     @AuthorizedUser() user: UserInfoDto,
-  ): Promise<RecipeDto> {
-    let createdRecipe: RecipeDto;
+  ): Promise<RecipeEntity> {
+    let createdRecipe: RecipeEntity;
     try {
       const recipe = { ...recipeContents, ownerId: user.id };
       createdRecipe = await this.recipeService.create(recipe);
@@ -51,24 +60,32 @@ export class RecipeController {
   }
 
   @UseGuards(OwnerGuard)
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Recipe not found' })
   @Delete(':id')
-  async deleteRecipe(@Param() params: RecipeIdDto): Promise<RecipeDto | null> {
-    const recipe = await this.recipeService.delete({ id: params.id });
+  async deleteRecipe(@Param('id') id: string): Promise<RecipeEntity> {
+    const recipe: RecipeEntity | null = await this.recipeService.delete({ id });
     if (!recipe) {
       throw new NotFoundException('Recipe does not exist');
     }
     return recipe;
   }
 
+  @ApiOkPaginatedResults()
   @Get('/search/:query')
-  searchRecipeTitles(@Param('query') query: string, @Query() paginatedQueryDto: PaginatedQueryDto) {
-    return this.recipeService.recipes(paginatedQueryDto, undefined, query);
+  searchRecipeTitles(
+    @Param('query') query: string,
+    @Query() paginatedQueryDto: PaginatedQueryDto,
+  ): Promise<PaginatedResults<RecipeEntity>> {
+    return this.recipeService.recipes(paginatedQueryDto, query);
   }
 
   @UseGuards(OwnerGuard)
+  @ApiBody({ type: RecipeContentEntity })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Recipe not found' })
   @Patch(':id')
-  async updateRecipe(@Param() param: RecipeIdDto, @Body() recipe: Partial<RecipeDto>): Promise<RecipeDto> {
-    const id = param.id;
+  async updateRecipe(@Param('id') id: string, @Body() recipe: Partial<RecipeContentEntity>): Promise<RecipeEntity> {
     const updatedRecipe = await this.recipeService.update({ id }, recipe);
     if (!updatedRecipe) {
       throw new NotFoundException('Recipe does not exist');

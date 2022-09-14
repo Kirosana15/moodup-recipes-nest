@@ -23,10 +23,10 @@ export class UserService {
     return this.prisma.user.update({ select: UserInfo.select, data, where });
   }
 
-  async user(where: Prisma.UserWhereUniqueInput): Promise<Partial<UserInfoDto> | null> {
+  async user(where: Prisma.UserWhereUniqueInput): Promise<UserInfoDto | null> {
     return this.prisma.user.findUnique({ ...UserInfo, where });
   }
-  async userWithCredentials(where: Prisma.UserWhereUniqueInput): Promise<Partial<UserDto> | null> {
+  async userWithCredentials(where: Prisma.UserWhereUniqueInput): Promise<UserDto | null> {
     return this.prisma.user.findUnique({ ...UserAll, where });
   }
 

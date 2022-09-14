@@ -17,7 +17,7 @@ const password_message = [
 ];
 
 export class UserEntity implements User {
-  @ApiProperty()
+  @ApiProperty({ type: 'string', format: 'uuid' })
   id: string;
 
   @ApiProperty({ description: username_message.join(' and '), example: 'User_123' })
@@ -39,6 +39,6 @@ export class UserEntity implements User {
   @ApiProperty()
   refreshToken: string;
 
-  @ApiProperty({ example: Date.now() })
+  @ApiProperty({ type: 'string', format: 'datetime', example: Date.now() })
   createdAt: Date;
 }

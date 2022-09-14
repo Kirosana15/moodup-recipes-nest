@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Role, User } from '@prisma/client';
 import { Length, Matches } from 'class-validator';
 
@@ -42,3 +42,5 @@ export class UserEntity implements User {
   @ApiProperty({ type: 'string', format: 'datetime', example: Date.now() })
   createdAt: Date;
 }
+
+export class UserCredentialsEntity extends PickType(UserEntity, ['username', 'password']) {}

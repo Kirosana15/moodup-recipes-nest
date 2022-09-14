@@ -8,6 +8,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { BearerStrategy } from './strategies/bearer.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { RefreshStrategy } from './strategies/refresh.strategy';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     PassportModule,
     JwtModule.register({ secret: TOKEN_KEY, signOptions: { expiresIn: EXPIRES_IN } }),
   ],
-  providers: [AuthService, LocalStrategy, BearerStrategy],
+  providers: [AuthService, LocalStrategy, BearerStrategy, RefreshStrategy],
   controllers: [AuthController],
   exports: [AuthService, PassportModule],
 })

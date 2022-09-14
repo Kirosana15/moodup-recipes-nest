@@ -21,7 +21,7 @@ export class RecipeController {
 
   @Post('/')
   createRecipe(@Body() recipeContents: RecipeContentDto, @AuthorizedUser() user: UserInfoDto): Promise<RecipeDto> {
-    const recipe = { ...recipeContents, ownerId: user._id };
+    const recipe = { ...recipeContents, ownerId: user.id };
     return this.recipeService.create(recipe);
   }
 

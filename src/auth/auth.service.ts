@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserCredentialsDto, UserInfoDto } from '../user/dto/user.dto';
+import { UserCredentialsDto, UserDto, UserInfoDto } from '../user/dto/user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { RefreshTokenDto, TokensDto } from './dto/tokens.dto';
+import { TokensDto } from './dto/tokens.dto';
 import { UserService } from '../user/user.service';
 
 import bcrypt from 'bcrypt';
@@ -36,7 +36,7 @@ export class AuthService {
 
   async validateUser(userCredentialsDto: UserCredentialsDto): Promise<UserInfoDto> {
     const { username, password } = userCredentialsDto;
-    const user = await this.userService.getByUsername(username);
+    const user = <UserDto>await this.userService.userWithCredentials({ username });
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -52,26 +52,13 @@ export class AuthService {
     return bcrypt.compare(password, hash);
   }
 
-  async refreshTokens(header: string): Promise<TokensDto> {
-    try {
-      const refreshToken = header.split(' ')[0] === 'Bearer' ? header.split(' ')[1] : header;
-      const { _id } = <RefreshTokenDto>this.jwtService.verify(refreshToken);
-      const user = await this.userService.getById(_id);
-      if (user?.refreshToken !== refreshToken) {
-        throw new UnauthorizedException('Invalid token');
-      }
-      return this.getNewTokens(user);
-    } catch (err) {
-      throw new UnauthorizedException('Invalid Token ');
+  async refreshTokens(id: string, refreshToken: string): Promise<TokensDto> {
+    const user = <UserDto>await this.userService.userWithCredentials({ id });
+    if (user?.refreshToken !== refreshToken) {
+      throw new UnauthorizedException('Invalid token');
     }
-  }
-
-  async verifyBearer(id: string): Promise<UserInfoDto | null> {
-    const user = this.userService.getById(id);
-    if (user) {
-      return user;
-    }
-    return null;
+    const { refreshToken: _r, password: _p, ...userData } = user;
+    return this.getNewTokens(userData);
   }
 
   async getNewTokens(user: UserInfoDto): Promise<TokensDto> {
@@ -79,8 +66,8 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const accessToken = this.jwtService.sign(user);
-    const refreshToken = this.jwtService.sign({ _id: user._id });
-    await this.userService.updateToken(user, refreshToken);
+    const refreshToken = this.jwtService.sign({ id: user.id });
+    await this.userService.update({ id: user.id }, { refreshToken });
     return { accessToken, refreshToken };
   }
 }

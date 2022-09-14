@@ -1,64 +1,53 @@
-import { User, UserDocument } from './user.schema';
-import { UserCredentialsDto, UserDto, UserInfoDto } from './dto/user.dto';
-import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { PaginatedQueryDto } from '../dto/queries.dto';
+import { Prisma } from '@prisma/client';
+
 import { PaginatedResults } from '../dto/paginatedResults.dto';
+import { PaginatedQueryDto } from '../dto/queries.dto';
 import { paginate } from '../helpers/paginate';
+import { PrismaService } from '../prisma/prisma.service';
+import { UserAll, UserCredentialsDto, UserDto, UserInfo, UserInfoDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(private prisma: PrismaService) {}
 
   async create(userCredentialsDto: UserCredentialsDto): Promise<UserDto> {
-    const newUser = new this.userModel(userCredentialsDto);
-    const user = await newUser.save();
-    return user.toObject();
+    return this.prisma.user.create({ data: userCredentialsDto });
   }
 
-  async delete(id: string): Promise<UserInfoDto | null> {
-    const deletedUser = await this.userModel.findByIdAndDelete(id).lean().exec();
-    if (!deletedUser) {
-      return null;
-    }
-    const { password: _password, refreshToken: _refreshToken, ...user } = deletedUser;
-    return user;
+  async delete(where: Prisma.UserWhereUniqueInput): Promise<UserInfoDto> {
+    return this.prisma.user.delete({ select: UserInfo.select, where });
   }
 
-  async getByUsername(username: string): Promise<UserDto | null> {
-    return this.userModel.findOne({ username }).lean().exec();
+  async update(where: Prisma.UserWhereUniqueInput, data: Prisma.UserUpdateInput): Promise<UserInfoDto> {
+    return this.prisma.user.update({ select: UserInfo.select, data, where });
   }
 
-  async getById(id: string): Promise<UserDto | null> {
-    return this.userModel.findById(id).lean().exec();
+  async user(where: Prisma.UserWhereUniqueInput): Promise<Partial<UserInfoDto> | null> {
+    return this.prisma.user.findUnique({ ...UserInfo, where });
+  }
+  async userWithCredentials(where: Prisma.UserWhereUniqueInput): Promise<Partial<UserDto> | null> {
+    return this.prisma.user.findUnique({ ...UserAll, where });
   }
 
-  async refreshToken(id: string, newToken: string): Promise<UserDto | null> {
-    const user = await this.userModel.findById(id).exec();
-    if (user) {
-      return this.updateToken(user, newToken);
-    }
-    return null;
-  }
+  async users(
+    paginatedQueryDto: PaginatedQueryDto,
+    where: Prisma.UserWhereInput = {},
+  ): Promise<PaginatedResults<UserInfoDto>> {
+    const { page, limit } = paginatedQueryDto;
+    const take = limit;
+    const skip = (page - 1) * take;
+    const itemsQuery = this.prisma.user.findMany({
+      select: UserInfo.select,
+      skip,
+      take,
+      where,
+      orderBy: { id: 'asc' },
+    });
+    const countQuery = this.prisma.user.count();
 
-  async getAll(paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<UserInfoDto>> {
-    const page = paginatedQueryDto.page;
-    const limit = paginatedQueryDto.limit;
-    const countQuery = this.userModel.count();
-    const usersQuery = this.userModel
-      .find({}, '_id username roles createdAt')
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ _id: -1 })
-      .exec();
+    const [items, count] = await Promise.all([itemsQuery, countQuery]);
 
-    const [count, users] = await Promise.all([countQuery, usersQuery]);
-
-    return paginate<UserInfoDto>(page, limit, count, users);
-  }
-
-  updateToken(user: UserInfoDto, newToken: string): Promise<UserDto | null> {
-    return this.userModel.findByIdAndUpdate(user._id, { refreshToken: newToken }, { new: true }).lean().exec();
+    return paginate(page, limit, count, items);
   }
 }

@@ -1,5 +1,5 @@
 import { Controller, Delete, Get, NotFoundException, Param, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '../decorators/roles';
 import { RoleTypes } from '../auth/enums/roles';
@@ -7,40 +7,37 @@ import { PaginatedQueryDto } from '../dto/queries.dto';
 import { UserInfoDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { OwnerGuard } from '../auth/guards/owner.guard';
+import { PaginatedResults } from '../dto/paginatedResults.dto';
 
-@ApiTags('user')
+@ApiTags('User')
+@ApiBearerAuth()
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Get('/all')
   @Roles(RoleTypes.Admin)
-  getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto) {
-    return this.userService.getAll(paginatedQueryDto);
-  }
-
-  @Delete('/:_id')
-  @UseGuards(OwnerGuard)
-  deleteUser(@Param('_id') id: string): Promise<UserInfoDto | null> {
-    const deletedUser = this.userService.delete(id);
-    if (!deletedUser) {
-      throw new NotFoundException('User with this id does not exist');
-    }
-    return deletedUser;
+  getAllUsers(@Query() paginatedQueryDto: PaginatedQueryDto): Promise<PaginatedResults<UserInfoDto>> {
+    return this.userService.users(paginatedQueryDto);
   }
 
   @Get('/me')
   getUserProfile(@Req() req: any): UserInfoDto {
-    const { _id, username, roles, createdAt } = req.user;
-    const user: UserInfoDto = { _id, username, roles, createdAt };
-    return user;
+    const { id, username, roles, createdAt } = req.user;
+    return { id, username, roles, createdAt };
+  }
+
+  @Delete('/:id')
+  @UseGuards(OwnerGuard)
+  deleteUser(@Param('id') id: string): Promise<UserInfoDto> {
+    return this.userService.delete({ id });
   }
 
   @Get('/:id')
   async getUser(@Param('id') id: string) {
-    const user = await this.userService.getById(id);
+    const user = this.userService.user({ id });
     if (!user) {
-      throw new NotFoundException('User with this id does not exist');
+      throw new NotFoundException('User not found');
     }
     return user;
   }

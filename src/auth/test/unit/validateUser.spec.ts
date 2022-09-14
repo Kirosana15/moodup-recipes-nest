@@ -1,7 +1,7 @@
 import { UnauthorizedException } from '@nestjs/common';
+
 import { setupModule } from './setup';
 import { UserDto } from '../../../user/dto/user.dto';
-
 import { mockCredentials } from '../../../user/test/mock/user.model.mock';
 import { AuthService } from '../../auth.service';
 

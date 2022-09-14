@@ -33,8 +33,12 @@ export const generateUserFromDb = (user?: Partial<UserDto>): UserDto => ({
   refreshToken: user?.refreshToken || faker.datatype.string(20),
 });
 
-export const generateUsers = (count: number): UserPayload[] => {
+export const generateUsers = (count: number): UserInfoDto[] => {
   const users = Array.from(Array(count), generateUser);
+  return users;
+};
+export const generateUsersFromDb = (count: number): UserDto[] => {
+  const users = Array.from(Array(count), generateUserFromDb);
   return users;
 };
 

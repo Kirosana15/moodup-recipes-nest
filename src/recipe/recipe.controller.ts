@@ -27,7 +27,7 @@ export class RecipeController {
   }
 
   @Get(':_id')
-  async getRecipeById(@Param() param: RecipeDto): Promise<RecipeDto> {
+  async getRecipeById(@Param() param: RecipeIdDto): Promise<RecipeDto> {
     const recipe = await this.recipeService.getById(param._id);
     if (!recipe) {
       throw new NotFoundException('Recipe does not exist');

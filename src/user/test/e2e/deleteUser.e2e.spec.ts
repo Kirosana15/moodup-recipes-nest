@@ -1,58 +1,43 @@
-import { ExecutionContext, HttpStatus, ValidationPipe } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { NestApplication } from '@nestjs/core';
-import { Test, TestingModule } from '@nestjs/testing';
-import request from 'supertest';
+import { TestingModule } from '@nestjs/testing';
 
+import { sendRequest } from '../../../../test/helpers/request';
 import { RoleTypes } from '../../../auth/enums/roles';
+import { MockGuards } from '../../../auth/guards/mock/guards';
 import { UserDto } from '../../dto/user.dto';
-import { UserController } from '../../user.controller';
-import { UserService } from '../../user.service';
 import { generateUserFromDb, mockId } from '../mock/user.model.mock';
 import { mockUserService } from '../mock/user.service.mock';
+import { setupApp, setupModule } from './setup';
 
 describe('user', () => {
   let app: NestApplication;
-  let mockUser: UserDto;
+  let module: TestingModule;
+  const mockUser = generateUserFromDb({ roles: [RoleTypes.User] });
 
   beforeAll(async () => {
-    mockUser = generateUserFromDb({ roles: [RoleTypes.User] });
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [UserController],
-      providers: [UserService],
-    })
-      .overrideProvider(UserService)
-      .useValue(mockUserService)
-      .compile();
-    app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
-    app.useGlobalGuards({
-      canActivate: (context: ExecutionContext) => {
-        const req = context.switchToHttp().getRequest();
-        req.user = mockUser;
-        const id = req.params._id;
-        return mockUser._id === id;
-      },
-    });
-    await app.init();
+    module = await setupModule();
+    app = await setupApp(module, MockGuards.Owner);
   });
 
-  afterEach(() => {
-    app.close();
+  afterAll(async () => {
+    await module.close();
   });
 
   describe('/DELETE :id', () => {
-    const TEST_PATH = '/user/';
+    const request = (status: HttpStatus, user?: Partial<UserDto>, path = `/user/${mockUser._id}`) =>
+      sendRequest(app, 'get', path, status, user);
     it(`should return ${HttpStatus.OK} and deleted user`, async () => {
-      const res = await request(app.getHttpServer()).delete(`${TEST_PATH}${mockUser._id}`).expect(HttpStatus.OK);
+      const res = await request(HttpStatus.OK, mockUser);
       expect(res.body._id).toEqual(mockUser._id);
     });
     it(`should return ${HttpStatus.NOT_FOUND} when user does not exist`, async () => {
       mockUserService.delete.mockReturnValueOnce(null);
-      await request(app.getHttpServer()).delete(`${TEST_PATH}${mockUser._id}`).expect(HttpStatus.NOT_FOUND);
+      await request(HttpStatus.NOT_FOUND, mockUser);
     });
     it(`should return ${HttpStatus.FORBIDDEN} when user tries to delete another user`, async () => {
       mockUserService.delete.mockReturnValueOnce(null);
-      await request(app.getHttpServer()).delete(`${TEST_PATH}${mockId}`).expect(HttpStatus.FORBIDDEN);
+      await request(HttpStatus.FORBIDDEN, mockUser, `/user/${mockId}`);
     });
   });
 });

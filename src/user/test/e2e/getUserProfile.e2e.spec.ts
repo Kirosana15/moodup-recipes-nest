@@ -1,56 +1,36 @@
-import { ExecutionContext, HttpStatus, ValidationPipe } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { NestApplication } from '@nestjs/core';
-import { Test, TestingModule } from '@nestjs/testing';
-import request from 'supertest';
+import { TestingModule } from '@nestjs/testing';
 
-import { UserInfoDto } from '../../dto/user.dto';
-import { UserController } from '../../user.controller';
-import { UserService } from '../../user.service';
+import { sendRequest } from '../../../../test/helpers/request';
+import { MockGuards } from '../../../auth/guards/mock/guards';
+import { UserDto } from '../../dto/user.dto';
 import { generateUser } from '../mock/user.model.mock';
-import { mockUserService } from '../mock/user.service.mock';
+import { setupApp, setupModule } from './setup';
 
 describe('user', () => {
   let app: NestApplication;
-  let mockUser: UserInfoDto;
+  let module: TestingModule;
+  const mockUser = generateUser();
 
   beforeAll(async () => {
-    mockUser = generateUser();
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [UserController],
-      providers: [UserService],
-    })
-      .overrideProvider(UserService)
-      .useValue(mockUserService)
-      .compile();
-    app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }));
-    app.useGlobalGuards({
-      canActivate: (context: ExecutionContext) => {
-        const req = context.switchToHttp().getRequest();
-        if (req.headers['authorization'] !== 'token') {
-          return false;
-        }
-        req.user = mockUser;
-        return true;
-      },
-    });
-    await app.init();
+    module = await setupModule();
+    app = await setupApp(module, MockGuards.Simple);
   });
 
-  afterAll(() => {
-    app.close();
+  afterAll(async () => {
+    await module.close();
   });
+
   describe('/GET me', () => {
+    const request = (status: HttpStatus, user?: Partial<UserDto>) => sendRequest(app, 'get', '/user/me', status, user);
     it(`should return ${HttpStatus.OK} and user info`, async () => {
-      const res = await request(app.getHttpServer())
-        .get('/user/me')
-        .set('authorization', 'token')
-        .expect(HttpStatus.OK);
+      const res = await request(HttpStatus.OK, mockUser);
       expect(res.body).toEqual(mockUser);
     });
 
     it(`should return ${HttpStatus.FORBIDDEN} when user is not logged in`, async () => {
-      await request(app.getHttpServer()).get('/user/me').expect(HttpStatus.FORBIDDEN);
+      await request(HttpStatus.FORBIDDEN);
     });
   });
 });
